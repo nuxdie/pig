@@ -76,26 +76,62 @@ body{margin:0;padding:0;font-family:var(--slab);color:var(--ink);background:var(
 .linkbtn:hover{color:var(--stamp);border-color:var(--stamp)}
 .linkbtn:focus-visible{outline:2px solid var(--stamp);outline-offset:3px}
 
-/* ---------- full-screen instructions ---------- */
-.intro{
-  position:fixed;inset:0;z-index:60;background:var(--paper);
-  display:none;overflow-y:auto;padding:clamp(20px,5vh,56px) 18px;
+/* ---------- the run bar ---------- */
+.runbar{
+  max-width:1240px;margin:0 auto 14px;display:flex;align-items:center;
+  gap:9px 16px;flex-wrap:wrap;padding:8px 10px;
+  border:1px solid var(--rule);background:var(--paper-hi);
 }
-.intro.is-on{display:block}
-.intro__sheet{
-  max-width:540px;margin:0 auto;display:flex;flex-direction:column;gap:20px;
+.runbar__rung{
+  font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  color:#fff;background:var(--ink);padding:4px 8px;flex:0 0 auto;
+}
+.runbar__who{font-size:15px;font-weight:600;flex:0 0 auto}
+.runbar__who em{font-style:normal;font-weight:400;color:var(--ink-soft);font-size:13px;margin-left:7px}
+.runbar__sat{display:flex;gap:3px;flex:0 0 auto;align-items:center}
+.runbar__satlab{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--pencil)}
+.runbar__purse{
+  font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-soft);margin-left:auto;flex:0 0 auto;display:flex;align-items:baseline;gap:6px;
+}
+.runbar__purse b{font-size:19px;letter-spacing:0;color:var(--good)}
+
+/* ---------- curtain: every screen that is not the board ---------- */
+.curtain{
+  position:fixed;inset:0;z-index:60;background:var(--paper);
+  display:none;overflow-y:auto;padding:clamp(18px,4.5vh,52px) 18px;
+}
+.curtain.is-on{display:block}
+.curtain__sheet{
+  max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:18px;
   animation:introIn .5s cubic-bezier(.2,.9,.3,1) both;
 }
 @keyframes introIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.intro__eyebrow{
+.cur__eyebrow{
   margin:0;font-family:var(--mono);font-size:10px;letter-spacing:.24em;
   text-transform:uppercase;color:var(--ink-soft);
 }
-.intro__title{
-  margin:-14px 0 0;font-size:clamp(56px,16vw,92px);line-height:.82;
-  letter-spacing:-.03em;font-weight:700;
-  border-bottom:2px solid var(--ink);padding-bottom:12px;
+.cur__title{
+  margin:-10px 0 0;font-size:clamp(38px,10vw,64px);line-height:.86;
+  letter-spacing:-.03em;font-weight:700;border-bottom:2px solid var(--ink);padding-bottom:11px;
 }
+.cur__title.win{color:var(--good)}
+.cur__title.loss{color:var(--red)}
+.cur__lede{margin:0;font-size:15px;line-height:1.5;color:var(--ink-soft)}
+.cur__lede b{color:var(--ink);font-weight:700}
+.cur__lede b.good{color:var(--good)}
+.cur__lede b.bad{color:var(--red)}
+.cur__head{
+  margin:0;font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ink-soft);
+  border-bottom:1px solid var(--ink);padding-bottom:5px;
+}
+.cur__block{display:flex;flex-direction:column;gap:9px}
+.cur__row{display:flex;gap:9px;flex-wrap:wrap}
+.cur__row .btn{flex:1 1 190px}
+.cur__note{margin:0;font-size:12.5px;line-height:1.45;color:var(--pencil);font-style:italic}
+.cur__go{flex:0 0 auto;padding:16px;font-size:14px}
+
 .intro__rules{margin:0;padding:0;list-style:none;counter-reset:r}
 .intro__rules li{
   counter-increment:r;position:relative;padding:8px 0 8px 32px;
@@ -109,12 +145,6 @@ body{margin:0;padding:0;font-family:var(--slab);color:var(--ink);background:var(
 }
 .intro__rules b{color:var(--ink);font-weight:700}
 .intro__rules b.bad{color:var(--red)}
-.intro__block{display:flex;flex-direction:column;gap:9px}
-.intro__head{
-  margin:0;font-family:var(--mono);font-size:10px;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--ink-soft);
-  border-bottom:1px solid var(--ink);padding-bottom:5px;
-}
 .intro__tiers{display:flex;gap:8px;flex-wrap:wrap}
 .tierchip{
   flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:2px;
@@ -124,7 +154,6 @@ body{margin:0;padding:0;font-family:var(--slab);color:var(--ink);background:var(
 .tierchip b{font-size:22px;letter-spacing:0;color:inherit}
 .tierchip--silver{border-color:var(--silver);color:var(--silver)}
 .tierchip--gold{border-color:var(--gold);color:var(--gold)}
-.intro__note{margin:0;font-size:13px;line-height:1.5;color:var(--ink-soft)}
 .intro__keys{display:flex;flex-wrap:wrap;gap:7px 16px;font-size:12.5px;color:var(--ink-soft)}
 .intro__keys span{display:flex;align-items:center;gap:5px}
 kbd{
@@ -132,10 +161,77 @@ kbd{
   border:1px solid var(--ink-soft);border-bottom-width:2px;border-radius:3px;
   padding:2px 5px;background:#fdfdf7;
 }
-.intro__go{flex:0 0 auto;margin-top:2px;padding:16px;font-size:14px}
+
+/* ---------- the ladder ---------- */
+.ladder{list-style:none;margin:0;padding:0}
+.ladder__row{
+  display:grid;grid-template-columns:22px 1fr auto auto;gap:9px;align-items:center;
+  padding:8px 6px;border-bottom:1px solid var(--rule-soft);
+}
+.ladder__n{
+  font-family:var(--mono);font-size:10px;font-weight:700;color:var(--pencil);
+  border:1px solid var(--rule);width:20px;height:20px;
+  display:flex;align-items:center;justify-content:center;
+}
+.ladder__name{font-size:14.5px;font-weight:600;line-height:1.15}
+.ladder__name em{display:block;font-style:normal;font-weight:400;font-size:11.5px;color:var(--ink-soft)}
+.ladder__kit{display:flex;gap:3px;align-items:center}
+.kitdot{width:9px;height:9px;border-radius:50%;background:var(--tin);display:block}
+.kitdot--silver{background:var(--silver)}
+.kitdot--gold{background:var(--gold)}
+.kithead{font-family:var(--mono);font-size:9px;color:var(--red);letter-spacing:.04em;border:1px solid var(--red);padding:1px 3px}
+.ladder__purse{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--good);min-width:3.4em;text-align:right}
+.ladder__row.is-done{opacity:.45}
+.ladder__row.is-done .ladder__n{background:var(--good);border-color:var(--good);color:#fff}
+.ladder__row.is-now{background:var(--paper-hi);box-shadow:inset 3px 0 0 var(--ink)}
+.ladder__row.is-now .ladder__n{background:var(--ink);border-color:var(--ink);color:#fff}
+.ladder__row.is-locked{opacity:.6}
+
+/* ---------- souvenirs ---------- */
+.satchel{display:flex;gap:5px;flex-wrap:wrap;min-height:50px;align-items:flex-start}
+.pickcard{
+  position:relative;width:58px;padding:7px 3px 4px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  background:#fdfdf7;border:1px solid var(--ink);border-radius:3px;
+  box-shadow:1px 1px 0 rgba(31,36,28,.2);font-family:var(--slab);
+  transition:transform .15s, box-shadow .15s, background .18s;
+}
+.pickcard::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--tin)}
+.pickcard--silver::before{background:var(--silver)}
+.pickcard--gold::before{background:var(--gold)}
+.pickcard:hover:not(:disabled){transform:translateY(-3px);box-shadow:1px 4px 0 rgba(31,36,28,.22)}
+.pickcard:focus-visible{outline:2px solid var(--stamp);outline-offset:2px}
+.pickcard__art{width:24px;height:24px;color:var(--ink)}
+.pickcard__art svg{width:100%;height:100%;display:block}
+.pickcard--rule{border-color:var(--good)} .pickcard--rule .pickcard__art{color:var(--good)}
+.pickcard--charge{border-color:var(--stamp);border-style:dashed} .pickcard--charge .pickcard__art{color:var(--stamp)}
+.pickcard__lab{
+  font-family:var(--mono);font-size:6.5px;letter-spacing:.03em;
+  color:var(--ink-soft);text-transform:uppercase;line-height:1;text-align:center;
+}
+.pickcard.is-chosen{background:var(--good);border-color:var(--good);box-shadow:1px 1px 0 #1d4b34}
+.pickcard.is-chosen .pickcard__art,.pickcard.is-chosen .pickcard__lab{color:#fff}
+.pickcard.is-drop{background:var(--red);border-color:var(--red)}
+.pickcard.is-drop .pickcard__art,.pickcard.is-drop .pickcard__lab{color:#fff}
+.pickcard:disabled{opacity:.34;cursor:default}
+.satchel__empty{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--pencil);padding:14px 0;
+}
+.record{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+.record b{display:block;font-size:20px;letter-spacing:0;color:var(--ink);margin-top:2px}
+
 @media (max-width:820px){
-  .intro__title{font-size:clamp(48px,17vw,72px)}
+  .cur__title{font-size:clamp(32px,11vw,52px)}
   .intro__rules li{font-size:14.5px}
+  .runbar{margin-bottom:10px;padding:6px 8px;gap:6px 10px}
+  .runbar__rung{font-size:9px;padding:3px 6px}
+  .runbar__who{font-size:13.5px}
+  .runbar__purse b{font-size:17px}
+  .ladder__row{grid-template-columns:20px 1fr auto auto;gap:7px;padding:7px 2px}
+  .ladder__name{font-size:13.5px}
+  .pickcard{width:52px}
 }
 .masthead__sub b{color:var(--ink);font-weight:600}
 .masthead__sub b.bad{color:var(--red)}
@@ -668,43 +764,7 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
 </head>
 <body>
 
-<div class="intro is-on" id="intro">
-  <div class="intro__sheet">
-    <p class="intro__eyebrow">A dice game about knowing when to stop</p>
-    <h1 class="intro__title">Pig</h1>
-
-    <ol class="intro__rules">
-      <li><b>Roll</b> as often as you dare. Each roll adds to <b>the line</b>.</li>
-      <li><b>Bank</b> and the line is yours for good.</li>
-      <li>Roll a single <b class="bad">1</b> and the line is struck out — the turn passes.</li>
-      <li>Roll <b class="bad">two 1s</b> and your whole balance is wiped to zero.</li>
-      <li>First to <b>100</b> wins.</li>
-    </ol>
-
-    <div class="intro__block">
-      <p class="intro__head">Cross a milestone, draft a card</p>
-      <div class="intro__tiers">
-        <span class="tierchip tierchip--tin"><b>8</b>Tin</span>
-        <span class="tierchip tierchip--silver"><b>21</b>Silver</span>
-        <span class="tierchip tierchip--gold"><b>45</b>Gold</span>
-      </div>
-      <p class="intro__note">Each draft offers three: a weighted die, a standing rule, or a charge you play once.
-        The machine drafts too, and its hand stays face-up beside its ledger.</p>
-    </div>
-
-    <div class="intro__block">
-      <p class="intro__head">Keys</p>
-      <div class="intro__keys">
-        <span><kbd>Space</kbd> roll</span>
-        <span><kbd>B</kbd> bank</span>
-        <span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> take a card</span>
-        <span><kbd>M</kbd> mute</span>
-      </div>
-    </div>
-
-    <button class="btn intro__go" id="btnStart">Start game</button>
-  </div>
-</div>
+<div class="curtain is-on" id="curtain"><div class="curtain__sheet" id="curtainBody"></div></div>
 
 <div class="sheet" id="sheet">
 
@@ -718,6 +778,8 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
       <div class="mixer__hint">M mutes</div>
     </div>
   </header>
+
+  <div class="runbar" id="runbar"></div>
 
   <div class="board">
 
@@ -754,7 +816,7 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
 
       <div class="verdict" id="verdict" role="status">
         <p class="verdict__line" id="verdictLine"></p>
-        <button class="btn btn--again" id="btnAgain">New game<small>n</small></button>
+        <button class="btn btn--again" id="btnAgain">Continue</button>
       </div>
 
       <div class="draft" id="draft" role="group" aria-label="Milestone draft">
@@ -845,6 +907,76 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
   }
 
   var GOAL = 100, LAND_AT = 800, ROLL_MS = 1000, WARM_CAP = 14;
+
+  /* =====================================================================
+     THE CIRCUIT
+     Seven opponents. Beat one and choose: walk away with the purse, or
+     play on against someone worse. Lose and the purse is gone — the same
+     decision the dice ask every turn, one level up.
+     ===================================================================== */
+  var CIRCUIT = [
+    {name:'The Publican',    note:'Plays it straight.',                    kit:[],                       head:0,  purse:10},
+    {name:'The Wheelwright', note:'Brings one tin trick to the table.',    kit:['tin'],                  head:0,  purse:18},
+    {name:'The Reeve',       note:'Starts with points already on the board.', kit:['tin'],               head:8,  purse:30},
+    {name:'The Alchemist',   note:'Tin and silver in hand before the bell.', kit:['tin','silver'],       head:0,  purse:50},
+    {name:'The Abbot',       note:'Three cards deep, and ahead of you.',   kit:['tin','silver','silver'],head:18, purse:80},
+    {name:'The Executioner', note:'Two gold cards and no hurry at all.',   kit:['silver','gold','gold'], head:8,  purse:130},
+    {name:'The Devil',       note:"A saint's die, two gold, and a lead.",  kit:['silver','gold','gold'], head:25, purse:320, fixed:'saint'}
+  ];
+  var SATCHEL_MAX = 4;
+
+  /* ---- persistence: localStorage where allowed, memory where not ---- */
+  var KEY_RUN = 'pig.run.v1', KEY_REC = 'pig.record.v1';
+  var STORE = (function(){
+    var mem = {}, live = false;
+    try{
+      var probe = '__pig_probe__';
+      window.localStorage.setItem(probe, '1');
+      window.localStorage.removeItem(probe);
+      live = true;
+    }catch(e){ live = false; }
+    return {
+      live: live,
+      get: function(k){ try{ return live ? window.localStorage.getItem(k) : (mem[k] || null); }catch(e){ return mem[k] || null; } },
+      set: function(k,v){ try{ if(live) window.localStorage.setItem(k,v); else mem[k]=v; }catch(e){ mem[k]=v; } },
+      del: function(k){ try{ if(live) window.localStorage.removeItem(k); else delete mem[k]; }catch(e){ delete mem[k]; } }
+    };
+  })();
+
+  var RUN = null;
+  var RECORD = {best:0, deepest:0, runs:0, walks:0, circuits:0};
+
+  function loadSaved(){
+    try{
+      var r = JSON.parse(STORE.get(KEY_REC) || 'null');
+      if(r && typeof r === 'object'){
+        ['best','deepest','runs','walks','circuits'].forEach(function(k){
+          if(typeof r[k] === 'number') RECORD[k] = r[k];
+        });
+      }
+    }catch(e){}
+    try{
+      var run = JSON.parse(STORE.get(KEY_RUN) || 'null');
+      if(run && run.active && typeof run.rung === 'number' &&
+         run.rung >= 0 && run.rung < CIRCUIT.length &&
+         Object.prototype.toString.call(run.souvenirs) === '[object Array]'){
+        run.souvenirs = run.souvenirs.filter(function(id){ return !!card(id); }).slice(0, SATCHEL_MAX);
+        run.purse = Number(run.purse) || 0;
+        RUN = run;
+      }
+    }catch(e){ RUN = null; }
+  }
+  function saveRun(){ if(RUN) STORE.set(KEY_RUN, JSON.stringify(RUN)); }
+  function saveRecord(){ STORE.set(KEY_REC, JSON.stringify(RECORD)); }
+  function newRun(){
+    RUN = {rung:0, purse:0, souvenirs:[], active:true};
+    RECORD.runs++;
+    saveRun(); saveRecord();
+  }
+  function closeRun(){
+    if(RUN) RUN.active = false;
+    STORE.del(KEY_RUN);
+  }
   // Spaced like a Fibonacci run — tight early, opening out — so the gold
   // tier gets three or four turns of play instead of one.
   var MILES = [8,21,45];
@@ -1271,25 +1403,290 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     A.mus.gain.setTargetAtTime(document.hidden ? 0 : A.musLevel, A.ctx.currentTime, 0.3);
   });
 
-  /* ================= instructions ================= */
-  var introEl = document.getElementById('intro');
-  var btnStart = document.getElementById('btnStart');
-  var btnHow   = document.getElementById('btnHow');
-  var started  = false;
+  /* =====================================================================
+     CURTAIN — every screen that is not the board
+     ===================================================================== */
+  var curtainEl = document.getElementById('curtain');
+  var curtainBody = document.getElementById('curtainBody');
+  var soundArmed = false;
 
-  function introOpen(){ return introEl.classList.contains('is-on'); }
-  function showIntro(){
-    btnStart.textContent = started ? 'Back to the game' : 'Start game';
-    introEl.classList.add('is-on');
-    btnStart.focus();
+  function curtainOpen(){ return curtainEl.classList.contains('is-on'); }
+  function mount(html, wire){
+    curtainBody.innerHTML = html;
+    curtainEl.classList.add('is-on');
+    curtainEl.scrollTop = 0;
+    if(wire) wire();
+    var first = curtainBody.querySelector('.cur__go, .btn');
+    if(first) first.focus();
   }
-  function hideIntro(){
-    introEl.classList.remove('is-on');
-    if(!started){ started = true; audio(); startMusic(); }
+  function curtainHide(){
+    curtainEl.classList.remove('is-on');
+    if(!soundArmed){ soundArmed = true; audio(); startMusic(); }
     if(!S.over && S.turn === 'you' && !S.busy) el.btnRoll.focus();
   }
-  btnStart.addEventListener('click', hideIntro);
-  btnHow.addEventListener('click', showIntro);
+
+  function miniHTML(c, cls){
+    return '<span class="mini mini--' + c.cls + ' mini--' + c.tier + '" title="' + c.name + ' — ' + c.desc + '">' +
+           '<span class="mini__suit">' + SUIT[c.cls] + '</span>' + icon(c.id,'mini__art') +
+           '<span class="mini__lab">' + c.short + '</span></span>';
+  }
+  function pickHTML(c, i, extra){
+    return '<button class="pickcard pickcard--' + c.cls + ' pickcard--' + c.tier + (extra||'') +
+           '" data-i="' + i + '" title="' + c.name + ' — ' + c.desc + '">' +
+           icon(c.id,'pickcard__art') + '<span class="pickcard__lab">' + c.short + '</span></button>';
+  }
+  function ladderHTML(){
+    return '<ol class="ladder">' + CIRCUIT.map(function(o, i){
+      var state = i < RUN.rung ? 'is-done' : (i === RUN.rung ? 'is-now' : 'is-locked');
+      var kit = (o.kit||[]).map(function(t){ return '<span class="kitdot kitdot--' + t + '"></span>'; }).join('');
+      if(o.head) kit += '<span class="kithead">+' + o.head + '</span>';
+      return '<li class="ladder__row ' + state + '">' +
+               '<span class="ladder__n">' + (i < RUN.rung ? '✓' : (i+1)) + '</span>' +
+               '<span class="ladder__name">' + o.name + '<em>' + o.note + '</em></span>' +
+               '<span class="ladder__kit">' + kit + '</span>' +
+               '<span class="ladder__purse">+' + o.purse + '</span>' +
+             '</li>';
+    }).join('') + '</ol>';
+  }
+  function recordHTML(){
+    return '<div class="record">' +
+      '<span>Best purse<b>' + RECORD.best + '</b></span>' +
+      '<span>Deepest rung<b>' + RECORD.deepest + '/7</b></span>' +
+      '<span>Runs<b>' + RECORD.runs + '</b></span>' +
+      '<span>Circuits cleared<b>' + RECORD.circuits + '</b></span>' +
+    '</div>';
+  }
+
+  /* ---- the instructions ---- */
+  function screenIntro(back){
+    mount(
+      '<p class="cur__eyebrow">A dice game about knowing when to stop</p>' +
+      '<h1 class="cur__title">Pig</h1>' +
+      '<ol class="intro__rules">' +
+        '<li><b>Roll</b> as often as you dare. Each roll adds to <b>the line</b>.</li>' +
+        '<li><b>Bank</b> and the line is yours for good.</li>' +
+        '<li>Roll a single <b class="bad">1</b> and the line is struck out — the turn passes.</li>' +
+        '<li>Roll <b class="bad">two 1s</b> and your whole balance is wiped to zero.</li>' +
+        '<li>First to <b>100</b> wins the match.</li>' +
+      '</ol>' +
+      '<div class="cur__block">' +
+        '<p class="cur__head">Cross a milestone, draft a card</p>' +
+        '<div class="intro__tiers">' +
+          '<span class="tierchip tierchip--tin"><b>8</b>Tin</span>' +
+          '<span class="tierchip tierchip--silver"><b>21</b>Silver</span>' +
+          '<span class="tierchip tierchip--gold"><b>45</b>Gold</span>' +
+        '</div>' +
+        '<p class="cur__note">Three on offer each time: a weighted die, a standing rule, or a charge you play once. ' +
+        'Your opponent drafts too, and its hand stays face-up beside its ledger.</p>' +
+      '</div>' +
+      '<div class="cur__block">' +
+        '<p class="cur__head">The circuit</p>' +
+        '<p class="cur__lede">Seven opponents, each worse than the last. Win, and choose: ' +
+        '<b>walk away</b> with the purse, or <b>play on</b> for more. Lose, and the purse goes with you. ' +
+        'Keep one card from every match you win.</p>' +
+      '</div>' +
+      '<div class="cur__block">' +
+        '<p class="cur__head">Keys</p>' +
+        '<div class="intro__keys">' +
+          '<span><kbd>Space</kbd> roll</span><span><kbd>B</kbd> bank</span>' +
+          '<span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> take a card</span><span><kbd>M</kbd> mute</span>' +
+        '</div>' +
+      '</div>' +
+      '<button class="btn cur__go" id="cGo">' + (back ? 'Back' : 'To the circuit') + '</button>',
+      function(){
+        document.getElementById('cGo').addEventListener('click', function(){
+          if(back) screenCircuit(); else screenCircuit();
+        });
+      }
+    );
+  }
+
+  /* ---- the ladder, shown before each rung ---- */
+  function screenCircuit(){
+    if(!RUN || !RUN.active) newRun();
+    var opp = CIRCUIT[RUN.rung];
+    var resuming = RUN.rung > 0 || RUN.purse > 0;
+    var sat = RUN.souvenirs.length
+      ? '<div class="satchel">' + RUN.souvenirs.map(function(id){ return miniHTML(card(id)); }).join('') + '</div>'
+      : '<p class="satchel__empty">nothing yet</p>';
+    mount(
+      '<p class="cur__eyebrow">' + (resuming ? 'Run in progress' : 'A run of seven') + '</p>' +
+      '<h1 class="cur__title">The Circuit</h1>' +
+      '<p class="cur__lede">Next up: <b>' + opp.name + '</b>. ' + opp.note +
+        (RUN.purse ? ' Your purse stands at <b class="good">' + RUN.purse + '</b> — lose and it is gone.' : '') +
+      '</p>' +
+      ladderHTML() +
+      '<div class="cur__block"><p class="cur__head">Satchel — ' + RUN.souvenirs.length + '/' + SATCHEL_MAX + '</p>' + sat + '</div>' +
+      '<button class="btn cur__go" id="cGo">' + (resuming ? 'Continue — rung ' + (RUN.rung+1) : 'Begin the circuit') + '</button>' +
+      '<div class="cur__row">' +
+        '<button class="btn" id="cHow">How to play</button>' +
+        (resuming ? '<button class="btn" id="cQuit">Abandon run</button>' : '') +
+      '</div>' +
+      recordHTML() +
+      (STORE.live ? '' : '<p class="cur__note">This browser is blocking storage, so the run will not survive a reload.</p>'),
+      function(){
+        document.getElementById('cGo').addEventListener('click', function(){
+          curtainHide(); startMatch();
+        });
+        document.getElementById('cHow').addEventListener('click', function(){ screenIntro(true); });
+        var q = document.getElementById('cQuit');
+        if(q) q.addEventListener('click', function(){ closeRun(); newRun(); screenCircuit(); });
+      }
+    );
+  }
+
+  /* ---- after a win: keep a card, then walk or play on ---- */
+  function loadoutIds(P){
+    var out = [];
+    P.dice.forEach(function(d){ if(d.id !== 'plain' && out.indexOf(d.id) < 0) out.push(d.id); });
+    Object.keys(P.rules).forEach(function(r){ if(P.rules[r] && out.indexOf(r) < 0) out.push(r); });
+    P.charges.forEach(function(c){ if(out.indexOf(c.id) < 0) out.push(c.id); });
+    return out;
+  }
+
+  function screenSpoils(){
+    var opp = CIRCUIT[RUN.rung];
+    var last = RUN.rung === CIRCUIT.length - 1;
+    RUN.purse += opp.purse;
+    if(RUN.rung + 1 > RECORD.deepest) RECORD.deepest = RUN.rung + 1;
+    saveRecord();
+
+    var offer = loadoutIds(S.p.you).filter(function(id){ return RUN.souvenirs.indexOf(id) < 0; });
+    var chosen = null, dropping = null;
+
+    function satchelBlock(){
+      var full = RUN.souvenirs.length >= SATCHEL_MAX;
+      var mine = RUN.souvenirs.length
+        ? RUN.souvenirs.map(function(id,i){
+            return pickHTML(card(id), i, dropping === i ? ' is-drop' : '');
+          }).join('')
+        : '<p class="satchel__empty">nothing yet</p>';
+      var take = offer.length
+        ? offer.map(function(id,i){
+            var dis = (full && dropping === null) ? ' disabled' : '';
+            return pickHTML(card(id), i, chosen === i ? ' is-chosen' : '').replace('<button ', '<button' + dis + ' ');
+          }).join('')
+        : '<p class="satchel__empty">nothing new to keep</p>';
+      return '<div class="cur__block">' +
+               '<p class="cur__head">Keep one — satchel ' + RUN.souvenirs.length + '/' + SATCHEL_MAX + '</p>' +
+               '<div class="satchel" id="sTake">' + take + '</div>' +
+               (full ? '<p class="cur__note">Satchel full. Tap one below to leave it behind.</p>' : '') +
+               '<p class="cur__head">Carried</p>' +
+               '<div class="satchel" id="sMine">' + mine + '</div>' +
+             '</div>';
+    }
+
+    function build(){
+      mount(
+        '<p class="cur__eyebrow">Rung ' + (RUN.rung+1) + ' of ' + CIRCUIT.length + ' cleared</p>' +
+        '<h1 class="cur__title win">' + (last ? 'The Devil pays' : 'You take it') + '</h1>' +
+        '<p class="cur__lede">' + opp.name + ' is beaten. <b class="good">+' + opp.purse + '</b> to the purse, ' +
+          'which now stands at <b class="good">' + RUN.purse + '</b>.' +
+          (last ? ' There is no one left to play.' : ' Lose the next and all of it goes.') + '</p>' +
+        satchelBlock() +
+        '<div class="cur__row">' +
+          '<button class="btn cur__go" id="cWalk">Walk away with ' + RUN.purse + '</button>' +
+          (last ? '' : '<button class="btn btn--bank" id="cOn">Play on — ' + CIRCUIT[RUN.rung+1].name + '</button>') +
+        '</div>' +
+        '<p class="cur__note">The run is saved after every rung, so you can close this and come back.</p>',
+        wire
+      );
+    }
+
+    function commit(){
+      if(chosen !== null){
+        var id = offer[chosen];
+        if(RUN.souvenirs.length >= SATCHEL_MAX && dropping !== null) RUN.souvenirs.splice(dropping, 1);
+        if(RUN.souvenirs.length < SATCHEL_MAX) RUN.souvenirs.push(id);
+      }
+    }
+
+    function wire(){
+      Array.prototype.forEach.call(curtainBody.querySelectorAll('#sTake .pickcard'), function(b){
+        b.addEventListener('click', function(){
+          var i = Number(b.getAttribute('data-i'));
+          chosen = (chosen === i) ? null : i;
+          play('take'); build();
+        });
+      });
+      Array.prototype.forEach.call(curtainBody.querySelectorAll('#sMine .pickcard'), function(b){
+        b.addEventListener('click', function(){
+          var i = Number(b.getAttribute('data-i'));
+          dropping = (dropping === i) ? null : i;
+          play('pass'); build();
+        });
+      });
+      document.getElementById('cWalk').addEventListener('click', function(){
+        commit();
+        RECORD.walks++;
+        if(RUN.purse > RECORD.best) RECORD.best = RUN.purse;
+        if(last) RECORD.circuits++;
+        saveRecord();
+        var banked = RUN.purse, cleared = last;
+        closeRun();
+        screenWalked(banked, cleared);
+      });
+      var on = document.getElementById('cOn');
+      if(on) on.addEventListener('click', function(){
+        commit();
+        RUN.rung++;
+        saveRun();
+        curtainHide();
+        startMatch();
+      });
+    }
+    build();
+  }
+
+  function screenWalked(banked, cleared){
+    mount(
+      '<p class="cur__eyebrow">' + (cleared ? 'Circuit cleared' : 'Run closed') + '</p>' +
+      '<h1 class="cur__title win">' + (cleared ? 'All seven' : 'Banked') + '</h1>' +
+      '<p class="cur__lede">You walk away with <b class="good">' + banked + '</b>.' +
+        (cleared ? ' Nobody was left standing.' : ' The dice never got the chance to take it back.') + '</p>' +
+      recordHTML() +
+      '<button class="btn cur__go" id="cGo">New run</button>',
+      function(){
+        document.getElementById('cGo').addEventListener('click', function(){ newRun(); screenCircuit(); });
+      }
+    );
+  }
+
+  function screenRuin(){
+    var opp = CIRCUIT[RUN.rung], lost = RUN.purse;
+    var sat = RUN.souvenirs.length
+      ? '<div class="satchel">' + RUN.souvenirs.map(function(id){ return miniHTML(card(id)); }).join('') + '</div>'
+      : '';
+    closeRun();
+    mount(
+      '<p class="cur__eyebrow">Rung ' + (RUN.rung+1) + ' of ' + CIRCUIT.length + '</p>' +
+      '<h1 class="cur__title loss">Ruin</h1>' +
+      '<p class="cur__lede">' + opp.name + ' takes the match' +
+        (lost ? ', and the <b class="bad">' + lost + '</b> you were carrying goes with it.' : '. You were carrying nothing, at least.') +
+      '</p>' +
+      (sat ? '<div class="cur__block"><p class="cur__head">Left on the table</p>' + sat + '</div>' : '') +
+      recordHTML() +
+      '<button class="btn cur__go" id="cGo">New run</button>',
+      function(){
+        document.getElementById('cGo').addEventListener('click', function(){ newRun(); screenCircuit(); });
+      }
+    );
+  }
+
+  /* ---- the strip above the board ---- */
+  function paintRunbar(){
+    if(!RUN){ el.runbar.innerHTML = ''; return; }
+    var opp = CIRCUIT[RUN.rung];
+    var sat = RUN.souvenirs.length
+      ? '<span class="runbar__satlab">Satchel</span>' +
+        RUN.souvenirs.map(function(id){ return miniHTML(card(id)); }).join('')
+      : '';
+    el.runbar.innerHTML =
+      '<span class="runbar__rung">Rung ' + (RUN.rung+1) + '/' + CIRCUIT.length + '</span>' +
+      '<span class="runbar__who">' + opp.name + '<em>' + opp.note + '</em></span>' +
+      (sat ? '<span class="runbar__sat">' + sat + '</span>' : '') +
+      '<span class="runbar__purse">Purse<b>' + RUN.purse + '</b></span>';
+  }
 
   function bringIntoView(node){
     if(window.innerWidth > 820 || reduced || !node.scrollIntoView) return;
@@ -1303,7 +1700,7 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     cube:[], hop:[], sh:[],
     turnTotal:$('turnTotal'), turnNote:$('turnNote'),
     btnRoll:$('btnRoll'), btnBank:$('btnBank'), btnAgain:$('btnAgain'), charges:$('charges'),
-    log:$('log'), whose:$('whose'),
+    log:$('log'), whose:$('whose'), runbar:$('runbar'),
     verdict:$('verdict'), verdictLine:$('verdictLine'),
     draft:$('draft'), draftHead:$('draftHead'), draftSub:$('draftSub'), draftCards:$('draftCards'),
     volSfx:$('volSfx'), volMus:$('volMus'),
@@ -1350,6 +1747,62 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     mountDice('you');
     el.turnTotal.className = 'online__num';
     say('Your turn. Roll to open a line.');
+    render();
+  }
+
+  function keepsAOne(dice){ return dice.some(function(d){ return d.faces.indexOf(1) > -1; }); }
+
+  // Souvenirs are applied straight into the loadout before the bell.
+  function equip(who, ids){
+    var P = S.p[who];
+    ids.forEach(function(id){
+      var c = card(id); if(!c) return;
+      if(c.cls === 'dice'){
+        var idx = -1;
+        for(var i=0;i<P.dice.length;i++){ if(P.dice[i].id === 'plain'){ idx = i; break; } }
+        if(idx < 0) return;
+        var after = P.dice.slice(); after[idx] = DICE[c.die];
+        if(!keepsAOne(after)) return;          // a hand with no 1 could never end a turn
+        P.dice[idx] = DICE[c.die];
+      } else if(c.cls === 'rule'){
+        if(P.rules[c.id]) return;
+        P.rules[c.id] = true;
+        if(c.id === 'third' && P.dice.length < 3) P.dice.push(DICE.chalk);
+      } else {
+        P.charges.push({id:c.id, spent:false});
+      }
+    });
+  }
+
+  function drawKit(P, tier){
+    var pool = CARDS.filter(function(c){ return c.tier === tier && usable(c, P); });
+    if(!pool.length) return null;
+    return pool[Math.floor(Math.random()*pool.length)].id;
+  }
+
+  function startMatch(){
+    var opp = CIRCUIT[RUN.rung];
+    reset();
+    equip('you', RUN.souvenirs);
+
+    var kit = [];
+    (opp.kit || []).forEach(function(tier){
+      var id = drawKit(S.p.them, tier);
+      if(id){ equip('them', [id]); kit.push(id); }
+    });
+    if(opp.fixed && usable(card(opp.fixed), S.p.them)) equip('them', [opp.fixed]);
+
+    if(opp.head > 0){
+      S.p.them.score = opp.head;
+      disp.them = opp.head;
+      addEntry('them','start',opp.head,opp.head);
+      // a head start is compensation, not a shortcut to free drafts
+      MILES.forEach(function(m){ if(m <= opp.head) S.p.them.claimed[m] = true; });
+    }
+
+    mountDice('you');
+    paintRunbar();
+    say('Rung ' + (RUN.rung+1) + ' — <b class="up">' + opp.name + '</b>. ' + opp.note);
     render();
   }
 
@@ -1501,6 +1954,7 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
             : e.kind === 'void'   ? '−'+e.amt+' void'
             : e.kind === 'saved'  ? '+'+e.amt+' saved'
             : e.kind === 'taken'  ? (e.amt < 0 ? String(e.amt) : '+'+e.amt) + ' levy'
+            : e.kind === 'start'  ? '+'+e.amt+' start'
             : '+'+e.amt+'…';
     return '<span class="entry__no">'+e.no+'</span>' +
            '<span class="entry__amt">'+amt+'</span>' +
@@ -1589,10 +2043,11 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     });
     syncScores();
     paintCharges();
+    paintRunbar();
 
     if(S.over){
       el.whose.className = 'whose ' + (S.winner === 'you' ? 'is-win' : 'is-loss');
-      el.whose.textContent = S.winner === 'you' ? 'You win' : 'Machine wins';
+      el.whose.textContent = S.winner === 'you' ? 'You win' : CIRCUIT[RUN.rung].name + ' wins';
     } else if(S.drafting){
       el.whose.className = 'whose is-' + (S.draftTier || 'tin');
       el.whose.textContent = (S.draftTier || '') + ' draft';
@@ -1601,7 +2056,7 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
       el.whose.textContent = '◀ Your turn';
     } else {
       el.whose.className = 'whose is-them';
-      el.whose.textContent = "Machine's turn ▶";
+      el.whose.textContent = 'Their turn ▶';
     }
 
     if(S.lost === null){
@@ -1978,13 +2433,17 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     play(winner === 'you' ? 'win' : 'lose');
     stampIt(winner,'SETTLED','good');
     el.verdict.className = 'verdict is-on verdict--' + (winner === 'you' ? 'win' : 'loss');
+    var oppName = CIRCUIT[RUN.rung].name;
     el.verdictLine.innerHTML = winner === 'you'
-      ? '<strong>You win</strong> with ' + S.p.you.score + ' against ' + S.p.them.score + '.<em>Game over</em>'
-      : '<strong>The machine wins</strong> with ' + S.p.them.score + ' against ' + S.p.you.score + '.<em>Game over</em>';
+      ? '<strong>You beat ' + oppName + '</strong> ' + S.p.you.score + ' to ' + S.p.them.score + '.<em>Rung cleared</em>'
+      : '<strong>' + oppName + ' wins</strong> ' + S.p.them.score + ' to ' + S.p.you.score + '.<em>Run over</em>';
     say(winner === 'you' ? 'You reached 100 first.' : 'The machine reached 100 first.');
     render();
     bringIntoView(el.verdict);
     el.btnAgain.focus();
+    setTimeout(function(){
+      if(!curtainOpen()){ winner === 'you' ? screenSpoils() : screenRuin(); }
+    }, 2200);
   }
 
   /* ================= charges ================= */
@@ -2179,7 +2638,10 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     bank('you');
   });
 
-  el.btnAgain.addEventListener('click', function(){ play('pass'); reset(); });
+  el.btnAgain.addEventListener('click', function(){
+    if(!S.over) return;
+    S.winner === 'you' ? screenSpoils() : screenRuin();
+  });
 
   el.volSfx.addEventListener('input', function(){
     A.sfxLevel = Number(el.volSfx.value)/100;
@@ -2232,12 +2694,7 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     var onButton = (t === 'BUTTON');
     function is(c, k, n){ return code === c || key === k || kc === n; }
 
-    if(introOpen()){
-      if(code === 'Escape' || code === 'Enter' || (!onButton && (code === 'Space' || key === ' '))){
-        e.preventDefault(); hideIntro();
-      }
-      return;
-    }
+    if(curtainOpen()) return;
 
     if(is('KeyM','m',77)){ e.preventDefault(); toggleMute(); return; }
 
@@ -2266,7 +2723,18 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
   });
 
   /* ================= go ================= */
-  reset();
+  document.getElementById('btnHow').addEventListener('click', function(){ screenIntro(true); });
+
+  loadSaved();
+  if(RUN && RUN.active){
+    startMatch();
+    screenCircuit();
+  } else {
+    newRun();
+    startMatch();
+    screenIntro(false);
+  }
+  paintRunbar();
 })();
 </script>
 </body>
