@@ -1,0 +1,21 @@
+:root{
+  --paper:#e6e9d8;
+  --paper-hi:#f2f4e8;
+  --rule:#a6b691;
+  --rule-soft:#c6cfb4;
+  --ink:#1f241c;
+  --ink-soft:#5c6355;
+  --pencil:#818873;
+  --red:#a8362b;
+  --good:#2e6b4c;
+  --stamp:#2c4463;
+  --bone:#f6f1e2;
+  --tin:#7f8079;
+  --silver:#67757f;
+  --gold:#9a7a24;
+  --mono:"Courier Prime","Courier New",monospace;
+  --slab:"Zilla Slab",Georgia,serif;
+  --dieBase:clamp(56px,10vw,74px);
+  --die:var(--dieBase);
+}
+

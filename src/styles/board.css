@@ -1,0 +1,9 @@
+/* ---------- board ---------- */
+.board{
+  display:grid;
+  grid-template-columns:minmax(190px,0.78fr) minmax(360px,1.55fr) minmax(190px,0.78fr);
+  grid-template-areas:"you bay them";
+  gap:clamp(10px,1.8vw,22px);align-items:start;
+  max-width:1280px;margin:0 auto;
+}
+
