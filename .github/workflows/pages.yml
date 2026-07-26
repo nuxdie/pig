@@ -23,8 +23,6 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          # npm 11, which is what package-lock.json was resolved with —
-          # npm 10 disagrees about optional peer deps and `npm ci` refuses.
           node-version: 24
           cache: npm
 

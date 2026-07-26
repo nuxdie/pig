@@ -3,6 +3,9 @@
 Classic dice game where you roll to build points, bank your score, and race to 100 —
 grown into a seven-opponent circuit with a card draft, a market, and a run you can lose.
 
+Play it at **[nuxdie.github.io/pig](https://nuxdie.github.io/pig/)** — every push to
+`main` builds and publishes there via `.github/workflows/pages.yml`.
+
 ## Running it
 
 ```sh
