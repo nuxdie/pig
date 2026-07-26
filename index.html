@@ -173,7 +173,26 @@ kbd{
 .ladder__row.is-locked{opacity:.6}
 
 /* ---------- souvenirs ---------- */
-.satchel{display:flex;gap:6px;flex-wrap:wrap;min-height:72px;align-items:flex-start}
+.satchel{display:flex;gap:6px;flex-wrap:wrap;min-height:52px;align-items:flex-start}
+.satchel--cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:8px;min-height:0}
+.cardbtn--pick{padding:24px 8px 12px;animation:none}
+.cardbtn--pick .pcard__art{width:36px;height:36px}
+.cardbtn--pick .pcard__name{font-size:13px}
+.cardbtn--pick .pcard__desc{font-size:10.5px}
+.cardbtn--pick.is-chosen{background:var(--good);border-color:var(--good);color:#fff}
+.cardbtn--pick.is-chosen .pcard__desc,.cardbtn--pick.is-chosen .pcard__fam{color:rgba(255,255,255,.85)}
+.cardbtn--pick.is-chosen .pcard__art,.cardbtn--pick.is-chosen .pcorner{color:#fff}
+.cardbtn--pick.is-chosen::before{border-color:rgba(255,255,255,.45)}
+.cardbtn--pick.is-chosen .ptier{background:rgba(0,0,0,.25)}
+.cardbtn--pick.is-drop{background:var(--red);border-color:var(--red);color:#fff}
+.cardbtn--pick.is-drop .pcard__desc,.cardbtn--pick.is-drop .pcard__fam{color:rgba(255,255,255,.85)}
+.cardbtn--pick.is-drop .pcard__art,.cardbtn--pick.is-drop .pcorner{color:#fff}
+@media (max-width:560px){
+  .satchel--cards{grid-template-columns:1fr}
+  .cardbtn--pick{flex-direction:row;align-items:center;text-align:left;padding:9px 10px 9px 20px;gap:9px}
+  .cardbtn--pick .pcard__art{width:30px;height:30px;flex:0 0 30px;margin:0}
+  .cardbtn--pick .pcard__body{align-items:flex-start;text-align:left}
+}
 .pickcard{
   position:relative;width:54px;height:70px;padding:13px 3px 5px;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;justify-content:space-between;
@@ -642,19 +661,22 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
 .face{
   position:absolute;inset:0;
   background:linear-gradient(155deg,#fffdf6,var(--bone) 58%,#e5dec9);
-  border:1px solid #cbc3ab;border-radius:11%;
+  border:1px solid #cbc3ab;border-radius:13%;
+  backface-visibility:hidden;
   display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);
   padding:9%;gap:2.5%;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.95), inset 0 -3px 5px rgba(0,0,0,.07);
 }
 .core{
-  position:absolute;inset:5%;border-radius:5%;
-  background:var(--core,#e2dbc5);
+  position:absolute;inset:4%;background:var(--core,#e2dbc5);
   backface-visibility:hidden;
 }
-.core--z{transform:translateZ(0)}
-.core--x{transform:rotateY(90deg)}
-.core--y{transform:rotateX(90deg)}
+.c-front {transform:translateZ(calc(var(--die) * .46))}
+.c-back  {transform:rotateY(180deg) translateZ(calc(var(--die) * .46))}
+.c-right {transform:rotateY(90deg)  translateZ(calc(var(--die) * .46));filter:brightness(.94)}
+.c-left  {transform:rotateY(-90deg) translateZ(calc(var(--die) * .46));filter:brightness(.9)}
+.c-top   {transform:rotateX(90deg)  translateZ(calc(var(--die) * .46));filter:brightness(1.04)}
+.c-bottom{transform:rotateX(-90deg) translateZ(calc(var(--die) * .46));filter:brightness(.88)}
 .f-front {transform:translateZ(calc(var(--die)/2))}
 .f-back  {transform:rotateY(180deg) translateZ(calc(var(--die)/2));filter:brightness(.9)}
 .f-right {transform:rotateY(90deg)  translateZ(calc(var(--die)/2));filter:brightness(.95)}
@@ -702,6 +724,35 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
 .cube.d-devil .pip--one{background:radial-gradient(circle at 34% 28%, #2a0d09, #170604 62%)}
 
 /* ---------- line total ---------- */
+.flares{
+  position:relative;width:100%;min-height:0;display:flex;flex-direction:column;
+  align-items:center;gap:4px;pointer-events:none;
+}
+.flare{
+  display:flex;align-items:center;gap:7px;
+  padding:5px 11px 5px 8px;border:1px solid var(--good);border-radius:3px;
+  background:#fdfdf7;color:var(--good);
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  animation:flareIn 1.5s cubic-bezier(.2,.9,.3,1) both;
+}
+.flare--charge{border-color:var(--stamp);color:var(--stamp)}
+.flare--dice{border-color:var(--ink);color:var(--ink)}
+.flare--them{opacity:.85}
+.flare__art{width:15px;height:15px;color:inherit;display:block}
+.flare__art svg{width:100%;height:100%;display:block}
+.flare__val{font-weight:700;font-size:12px;letter-spacing:0}
+@keyframes flareIn{
+  0%{opacity:0;transform:translateY(9px) scale(.9)}
+  14%{opacity:1;transform:translateY(0) scale(1)}
+  78%{opacity:1}
+  100%{opacity:0;transform:translateY(-7px)}
+}
+.mini.is-flare{animation:miniFlare .8s cubic-bezier(.2,1.3,.4,1)}
+@keyframes miniFlare{
+  0%{transform:translateY(0) scale(1)}
+  22%{transform:translateY(-7px) scale(1.16)}
+  100%{transform:translateY(0) scale(1)}
+}
 .online{text-align:center}
 .online__lab{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft)}
 .online__num{
@@ -903,6 +954,8 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
       <div class="tray" id="tray" data-n="2"></div>
       <p class="tray__hint">Drag a die to read its faces · tap to throw</p>
 
+      <div class="flares" id="flares" aria-hidden="true"></div>
+
       <div class="online">
         <div class="online__lab">On the line</div>
         <div class="online__num" id="turnTotal">0</div>
@@ -973,7 +1026,9 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     devil : {id:'devil',  faces:[1,6,6,6,6,6]},         // 5.17 avg, one 1
     chalk : {id:'chalk',  faces:[2,3,2,2,2,2]},         // 2.17 avg, no 1
     ivory : {id:'ivory',  faces:[2,5,3,4,2,2]},         // 3.00 avg, no 1
-    saint : {id:'saint',  faces:[3,5,4,4,3,5]}          // 4.00 avg, no 1
+    saint : {id:'saint',  faces:[3,5,4,4,3,5]},         // 4.00 avg, no 1
+    whet  : {id:'whet',   faces:[1,6,4,4,5,3]},         // 3.83 avg, one 1
+    crown : {id:'crown',  faces:[3,6,4,5,3,6]}          // 4.50 avg, no 1
   };
   function avgOf(d){ var s=0; d.faces.forEach(function(v){s+=v;}); return s/6; }
   function onesOf(d){ var n=0; d.faces.forEach(function(v){ if(v===1) n++; }); return n; }
@@ -1089,8 +1144,14 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
      desc:'When a 1 strikes your line, a third of it is banked instead of lost.'},
     {id:'steady', tier:'tin', cls:'rule', name:'Steady hand', short:'STEADY',
      desc:'Bank 20 or more in one go and take 4 points on top.'},
+    {id:'whet', tier:'tin', cls:'dice', name:'Whetstone die', die:'whet', short:'WHET',
+     desc:'Swaps a die for a sharpened one. Same lone 1, every other face a little better.'},
+    {id:'waxseal', tier:'tin', cls:'rule', name:'Wax seal', short:'SEAL',
+     desc:'The first bank of every match pays 6 extra. Small, but it always arrives.'},
     {id:'shield', tier:'tin', cls:'charge', name:'Shield', short:'SHIELD',
      desc:'Held. The next strike or wipe is cancelled — your line banks instead.'},
+    {id:'quill', tier:'tin', cls:'charge', name:'Quill', short:'QUILL', key:'Q',
+     desc:'Play it before rolling. Whatever your next roll adds to the line counts twice.'},
 
     /* ---- SILVER — bigger edges, and tempo ---- */
     {id:'devil', tier:'silver', cls:'dice', name:"Devil's die", die:'devil', short:'DEVIL',
@@ -1103,8 +1164,14 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
      desc:'Grows. Your first bank pays 1 extra, the next 2, the next 3, up to 8.'},
     {id:'levy', tier:'silver', cls:'charge', name:'Levy', short:'LEVY', key:'L',
      desc:'Play it to take 8 points straight off your opponent.'},
+    {id:'counting', tier:'silver', cls:'rule', name:'Counting house', short:'COUNT',
+     desc:'Every bank pays 1 extra for each card in your satchel. It grows as the run does.'},
+    {id:'memory', tier:'silver', cls:'rule', name:'Long memory', short:'MEMORY',
+     desc:'When a 1 strikes your line, your next turn opens with 6 already on it.'},
     {id:'wind', tier:'silver', cls:'charge', name:'Second wind', short:'WIND', key:'W',
      desc:'Play it to bank the line and immediately take another turn.'},
+    {id:'bellows', tier:'silver', cls:'charge', name:'Bellows', short:'BELLOW', key:'G',
+     desc:'Play it to double the line where it stands — and keep rolling.'},
 
     /* ---- GOLD — the tier that changes whether you survive ---- */
     {id:'ivory', tier:'gold', cls:'dice', name:'Ivory die', die:'ivory', short:'IVORY',
@@ -1118,7 +1185,13 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     {id:'transmute', tier:'gold', cls:'charge', name:'Transmute', short:'TRANSM', key:'T',
      desc:'Play it before rolling. On your next roll every 1 turns into that die\u2019s highest face.'},
     {id:'ward', tier:'gold', cls:'charge', name:'Ward', short:'WARD', key:'R',
-     desc:'Play it to smother your opponent\u2019s next card. Theirs is spent and does nothing.'}
+     desc:'Play it to smother your opponent\u2019s next card. Theirs is spent and does nothing.'},
+    {id:'crown', tier:'gold', cls:'dice', name:'Crown die', die:'crown', short:'CROWN',
+     desc:'Swaps a die. No 1, and the biggest honest numbers there are.'},
+    {id:'iron', tier:'gold', cls:'rule', name:'Iron ledger', short:'IRON',
+     desc:'You can no longer be wiped. Double 1s strike the line like any other 1.'},
+    {id:'windfall', tier:'gold', cls:'charge', name:'Windfall', short:'WINDFALL', key:'F',
+     desc:'Play it to bank the line — and leave it standing on the table as well.'}
   ];
   function card(id){ for(var i=0;i<CARDS.length;i++){ if(CARDS[i].id === id) return CARDS[i]; } return null; }
 
@@ -1141,6 +1214,25 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
   }
 
   var ICONS = {
+    whet:'<rect x="3" y="8" width="12.6" height="12.6" rx="2.8"/>' +
+         '<circle cx="6.8" cy="11.8" r="1.1" fill="currentColor" stroke="none"/>' +
+         '<circle cx="11.8" cy="16.8" r="1.1" fill="currentColor" stroke="none"/>' +
+         '<path d="M16.4 8.6 21.6 3.4"/><path d="M18.2 3 22 6.8"/>',
+    crown:'<path d="M3.2 18.4h17.6"/><path d="M3.2 18.4 4.6 7l4.3 4.1L12 5l3.1 6.1L19.4 7l1.4 11.4z"/>',
+    waxseal:'<circle cx="12" cy="13.6" r="6.4"/><path d="M9.4 13.6h5.2M12 11v5.2"/>' +
+            '<path d="M8.2 8.2 6.4 3.2h11.2l-1.8 5"/>',
+    quill:'<path d="M20.6 3.2c-8 1-12.6 5.4-14 9.8-.7 2.2-.3 4 .6 5.2"/>' +
+          '<path d="M3.4 20.6 9 15"/><path d="M20.6 3.2c-1 6.4-4.6 9.6-9.4 10.4"/>',
+    counting:'<path d="M4 20.6V9.4l8-5.6 8 5.6v11.2z"/><path d="M8.4 20.6v-5.4h7.2v5.4"/>' +
+             '<path d="M9.6 11.4h4.8"/>',
+    memory:'<path d="M4.2 12a7.8 7.8 0 1 0 2.4-5.6"/><path d="M3.4 3.6v4.6H8"/>' +
+           '<path d="M12 8.2V12l2.8 2"/>',
+    bellows:'<path d="M12 3.4 4.6 8.6v6.8L12 20.6l7.4-5.2V8.6z"/><path d="M12 3.4v17.2"/>' +
+            '<path d="M8.3 6v12"/><path d="M15.7 6v12"/>',
+    iron:'<rect x="3.6" y="7.4" width="16.8" height="13" rx="2.2"/>' +
+         '<path d="M8 7.4V5.6a4 4 0 0 1 8 0v1.8"/><path d="M12 12v4"/>',
+    windfall:'<path d="M12 3.2v11.6"/><path d="M8 10.8 12 14.8l4-4"/>' +
+             '<path d="M3.8 15.4v3.4a2 2 0 0 0 2 2h12.4a2 2 0 0 0 2-2v-3.4"/>',
     tithe:'<circle cx="12" cy="7.4" r="4.3"/><path d="M12 5.4v4M10.7 6.4h2.4"/>' +
           '<path d="M12 13.6v6.8"/><path d="M8.8 17.6 12 20.8l3.2-3.2"/>',
     ivory:'<rect x="4" y="4" width="16" height="16" rx="3.2"/>' +
@@ -1306,7 +1398,38 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     src.connect(bp); bp.connect(g); outSfx(g);
     src.start(t0);
   }
+  /* Every foe carries a leitmotif: their own key, tempo, and a four-note
+     figure that surfaces every other bar. Same room, different tenant. */
+  var FOES = [
+    {semi: 0,  bpm:61, fig:[0,2,4,2], soft:1.00},  // Publican  — plain A minor
+    {semi: 2,  bpm:64, fig:[4,3,1,0], soft:0.95},  // Wheelwright
+    {semi:-3,  bpm:58, fig:[0,1,3,1], soft:1.05},  // Reeve
+    {semi: 5,  bpm:66, fig:[2,4,5,4], soft:0.92},  // Alchemist
+    {semi:-1,  bpm:56, fig:[5,3,2,0], soft:1.08},  // Abbot
+    {semi: 3,  bpm:69, fig:[0,4,3,6], soft:0.88},  // Executioner
+    {semi:-5,  bpm:52, fig:[6,4,2,0], soft:1.15}   // Devil     — low and slow
+  ];
+  function foe(){ return FOES[(RUN && RUN.rung) || 0]; }
+  function shift(f){ return f * Math.pow(2, foe().semi / 12); }
+
   function chordNow(){ return A.chord || PROG[0]; }
+
+  /* Repeating an action should not repeat a note. Each event walks its own
+     little figure and only resets after a pause, so hammering the bank
+     button plays a phrase rather than a metronome. */
+  var walks = {};
+  function walk(key, len, resetMs){
+    var w = walks[key] || (walks[key] = {i:0, t:0});
+    var now = Date.now();
+    if(now - w.t > (resetMs || 5000)) w.i = 0;
+    w.t = now;
+    return w.i++ % len;
+  }
+  function chordTone(step, oct){
+    var ch = chordNow().n;
+    var i = step % ch.length, up = Math.floor(step / ch.length);
+    return shift(ch[i]) * Math.pow(2, (oct || 0) + up);
+  }
 
   var SFX = {
     throwDice: function(n){
@@ -1322,7 +1445,8 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
       knock({at:.05,f:640,q:2.4,vol:.3,dur:.06});
       tone({f:150,to:70,dur:.16,vol:.18,type:'sine',lp:400});
     },
-    add: function(n){ bell({f:LADDER[Math.min(Math.max(n,1)-1, LADDER.length-1)], vol:.13, dur:.85}); },
+    // consecutive rolls climb the chord rather than repeating a pitch
+    add: function(n){ bell({f:chordTone(Math.max(n,1)-1, 1), vol:.13, dur:.85}); },
     struck: function(){
       duck(.28,.9);
       var root = chordNow().b;
@@ -1336,32 +1460,77 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
       tone({at:.18,f:root,to:root/2.2,dur:.9,vol:.26,type:'triangle',lp:440});
       knock({f:260,q:.6,vol:.36,dur:.55});
     },
+    // each bank starts one step further up the chord than the last
     bank: function(){
       duck(.2,.7);
-      var ch = chordNow().n;
+      var s = walk('bank', 5, 30000);
       knock({f:600,q:1.5,vol:.4,dur:.06});
-      bell({at:.02,f:ch[1]*2,vol:.13,dur:.8});
-      bell({at:.10,f:ch[2]*2,vol:.12,dur:.9});
-      bell({at:.19,f:ch[3]*2,vol:.10,dur:1.1});
+      bell({at:.02,f:chordTone(s,   1),vol:.13,dur:.8});
+      bell({at:.10,f:chordTone(s+1, 1),vol:.12,dur:.9});
+      bell({at:.19,f:chordTone(s+2, 1),vol:.10,dur:1.1});
     },
-    pass: function(){ bell({f:chordNow().b*4, vol:.05, dur:.5}); },
+    pass: function(){ bell({f:shift(chordNow().b) * (walk('pass',2,9000) ? 4 : 6), vol:.05, dur:.5}); },
     milestone: function(){
       duck(.45,2.2);
-      var ch = chordNow().n;
-      [ch[0],ch[2],ch[1]*2,ch[3]*2].forEach(function(f,i){ bell({at:i*.1,f:f*2,vol:.15,dur:1.5}); });
+      [0,2,4,6].forEach(function(d,i){ bell({at:i*.1,f:chordTone(d,1),vol:.15,dur:1.5}); });
     },
     take: function(){
-      var ch = chordNow().n;
+      var s = walk('take', 4, 20000);
       knock({f:520,q:1.4,vol:.34,dur:.07});
-      bell({at:.03,f:ch[0]*4,vol:.15,dur:1.2});
-      bell({at:.14,f:ch[2]*4,vol:.11,dur:1.4});
+      bell({at:.03,f:chordTone(s,   2),vol:.15,dur:1.2});
+      bell({at:.14,f:chordTone(s+2, 2),vol:.11,dur:1.4});
+    },
+
+    /* Each card has its own short signature, built from the chord that is
+       playing, so an effect firing sounds like part of the music. */
+    card: function(id){
+      var s = walk('card:' + id, 3, 25000);
+      switch(id){
+        case 'momentum':
+          bell({f:chordTone(s+1, 1), vol:.075, dur:.5}); break;
+        case 'insurance':
+          tone({f:shift(220), dur:.5, vol:.16, type:'sine', lp:900});
+          bell({at:.06, f:chordTone(0, 1), vol:.09, dur:1.0}); break;
+        case 'steady':
+          knock({f:440,q:2.4,vol:.2,dur:.07});
+          bell({at:.04, f:chordTone(s, 1), vol:.11, dur:.9}); break;
+        case 'habit':
+          bell({f:chordTone(s, 1), vol:.1, dur:.8});
+          bell({at:.08, f:chordTone(s+2, 1), vol:.07, dur:.9}); break;
+        case 'pauper':
+          knock({f:2600,q:3.2,vol:.16,dur:.04});
+          bell({at:.03, f:chordTone(4, 2), vol:.1, dur:.7}); break;
+        case 'counting':
+          [0,1,2].forEach(function(k){ bell({at:k*.05, f:chordTone(k, 1), vol:.075, dur:.6}); }); break;
+        case 'waxseal':
+          knock({f:320,q:1.6,vol:.26,dur:.11});
+          bell({at:.05, f:chordTone(0, 0), vol:.12, dur:1.1}); break;
+        case 'tithe':
+          tone({f:shift(392), to:shift(294), dur:.34, vol:.17, type:'triangle', lp:1100}); break;
+        case 'memory':
+          tone({f:shift(262), to:shift(392), dur:.4, vol:.14, type:'sine', lp:1600});
+          bell({at:.2, f:chordTone(2, 1), vol:.08, dur:.8}); break;
+        case 'iron':
+          tone({f:shift(110), dur:.7, vol:.28, type:'square', lp:520});
+          knock({at:.02, f:180, q:1.1, vol:.3, dur:.24}); break;
+        case 'quill':
+          bell({f:chordTone(3, 2), vol:.11, dur:.6});
+          bell({at:.07, f:chordTone(5, 2), vol:.09, dur:.7}); break;
+        case 'bellows':
+          tone({f:shift(147), to:shift(294), dur:.5, vol:.24, type:'sawtooth', lp:900});
+          bell({at:.24, f:chordTone(2, 1), vol:.12, dur:.9}); break;
+        case 'windfall':
+          [0,2,4,6].forEach(function(k){ bell({at:k*.055, f:chordTone(k, 1), vol:.11, dur:1.2}); }); break;
+        default:
+          bell({f:chordTone(s, 1), vol:.09, dur:.7});
+      }
     },
     shield: function(){
       duck(.3,1.1);
       bell({f:1174.66,vol:.2,dur:1.6}); bell({at:.06,f:1567.98,vol:.13,dur:1.3});
       knock({f:2400,q:2.2,vol:.16,dur:.05});
     },
-    warm: function(){ bell({f:987.77,vol:.13,dur:.7}); bell({at:.09,f:1318.51,vol:.1,dur:.8}); },
+    warm: function(){ bell({f:chordTone(2,2),vol:.13,dur:.7}); bell({at:.09,f:chordTone(4,2),vol:.1,dur:.8}); },
     levy: function(){
       duck(.3,1.2);
       tone({f:392,to:196,dur:.45,vol:.26,type:'triangle',lp:1200});
@@ -1384,16 +1553,15 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     },
     win: function(){
       duck(.4,2.4);
-      var ch = chordNow().n;
-      [ch[0],ch[1],ch[2],ch[3],ch[1]*4].forEach(function(f,i){ bell({at:i*.13,f:f*2,vol:.16,dur:1.6}); });
+      [0,1,2,3,5].forEach(function(d,i){ bell({at:i*.13,f:chordTone(d,1),vol:.16,dur:1.6}); });
     },
     lose: function(){
       duck(.4,2.4);
-      var ch = chordNow().n;
-      [ch[3],ch[2],ch[1],ch[0]].forEach(function(f,i){ tone({at:i*.15,f:f,dur:.6,vol:.2,type:'triangle',lp:1400}); });
+      [3,2,1,0].forEach(function(d,i){ tone({at:i*.15,f:chordTone(d,0),dur:.6,vol:.2,type:'triangle',lp:1400}); });
     }
   };
   function play(name, arg){ if(A.sfxLevel <= 0) return; try{ SFX[name](arg); }catch(e){} }
+  var LADDER_UNUSED = LADDER;
 
   /* ---------------- generative score ---------------- */
   function tension(){
@@ -1407,7 +1575,7 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
       [-4.5, 4.5].forEach(function(cents){
         var o = c.createOscillator();
         o.type = i > 1 ? 'sine' : 'triangle';
-        o.frequency.value = f; o.detune.value = cents + (Math.random()*3-1.5);
+        o.frequency.value = shift(f); o.detune.value = cents + (Math.random()*3-1.5);
         var lp = c.createBiquadFilter(); lp.type='lowpass';
         lp.frequency.setValueAtTime(open*0.75, t0);
         lp.frequency.linearRampToValueAtTime(open, t0 + dur*0.5);
@@ -1466,30 +1634,43 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     if(i % BAR === 0){
       A.chord = ch;
       pad(ch, t, BAR * eighth);
-      bassNote(ch.b, t, BAR * eighth);
+      bassNote(shift(ch.b), t, BAR * eighth);
       if(ci % 4 === 0 && (!motif || Math.random() < 0.55)) motif = newMotif();
+    }
+    // the foe's own figure, every other bar, sitting under everything else
+    var F = foe();
+    if(i % (BAR*2) === 4){
+      F.fig.forEach(function(d, k){
+        voice(shift(POOL[d]) * F.soft, t + k * eighth * 1.5, 0.030, true);
+      });
     }
     var section = Math.floor(i / (BAR*2)) % 2;
     if(section === 0 && i % 2 === 0){
       var k = (i/2) % ch.n.length, oct = ((i/2) % 8 < 4) ? 2 : 4;
-      voice(ch.n[k]*oct/2, t, 0.019 + tension()*0.008, true);
+      voice(shift(ch.n[k])*oct/2, t, 0.019 + tension()*0.008, true);
     }
     if(motif){
       var d = motif[i % motif.length];
       if(d >= 0 && Math.random() < 0.55 + tension()*0.3){
-        voice(POOL[d], t, 0.038 + Math.random()*0.02, false);
+        voice(shift(POOL[d]), t, 0.038 + Math.random()*0.02, false);
       }
     }
-    if(i % BAR === BAR-2 && Math.random() < 0.6){ voice(POOL[POOL.length-1]*2, t, 0.016, true); }
+    if(i % BAR === BAR-2 && Math.random() < 0.6){ voice(shift(POOL[POOL.length-1])*2, t, 0.016, true); }
   }
   function scheduler(){
     if(!A.ctx) return;
     var eighth = 60 / A.bpm / 2;
     while(A.next < A.ctx.currentTime + 0.28){ stepAt(A.step, A.next); A.step++; A.next += eighth; }
   }
+  function retune(){
+    A.bpm = foe().bpm;
+    if(A.delay) A.delay.delayTime.setTargetAtTime(60/A.bpm*0.75, A.ctx.currentTime, 0.4);
+    motif = null;
+  }
   function startMusic(){
     if(A.playing || A.musLevel <= 0) return;
     var c = audio(); if(!c) return;
+    A.bpm = foe().bpm;
     A.playing = true; A.next = c.currentTime + 0.15;
     A.mus.gain.setTargetAtTime(A.musLevel, c.currentTime, 1.6);
     A.timer = setInterval(scheduler, 40);
@@ -1531,11 +1712,10 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
            '<span class="mini__band"></span>' + famMark(c.cls, 'fam--mini') +
            icon(c.id,'mini__art') + '<span class="mini__lab">' + c.short + '</span></span>';
   }
+  // full card faces, so the decision is made on the text and not on memory
   function pickHTML(c, i, extra){
-    return '<button class="pickcard pickcard--' + c.cls + ' pickcard--' + c.tier + (extra||'') +
-           '" data-i="' + i + '" title="' + c.name + ' — ' + c.desc + '">' +
-           '<span class="mini__band"></span>' + famMark(c.cls, 'fam--mini') +
-           icon(c.id,'pickcard__art') + '<span class="pickcard__lab">' + c.short + '</span></button>';
+    return '<button class="cardbtn cardbtn--' + c.cls + ' cardbtn--' + c.tier + ' cardbtn--pick' +
+           (extra||'') + '" data-i="' + i + '">' + cardMarkup(c) + '</button>';
   }
   function ladderHTML(){
     return '<ol class="ladder">' + CIRCUIT.map(function(o, i){
@@ -1604,8 +1784,21 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
   }
 
   /* ---- the market, open before every rung ---- */
+  function canAffordAnything(){
+    for(var i=0;i<MARKET.length;i++){
+      var m = MARKET[i];
+      if(m.id === 'head' && RUN.head > 0) continue;
+      if(RUN.purse >= m.cost) return true;
+    }
+    return false;
+  }
   function marketHTML(){
     var hired = (RUN.hired || []).map(function(id){ return miniHTML(card(id)); }).join('');
+    if(!canAffordAnything() && !hired){
+      return RUN.purse
+        ? '<p class="cur__note">The market wants more than the ' + RUN.purse + ' in your purse. Win another rung first.</p>'
+        : '';
+    }
     if(RUN.head) hired += '<span class="mini mini--none"><span class="mini__lab">+' + RUN.head + ' start</span></span>';
     return '<div class="cur__block">' +
       '<p class="cur__head">The market — purse ' + RUN.purse + '</p>' +
@@ -1730,6 +1923,7 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
             return pickHTML(card(id), i, dropping === i ? ' is-drop' : '');
           }).join('')
         : '<p class="satchel__empty">nothing yet</p>';
+      var cls = ' satchel--cards';
       var take = offer.length
         ? offer.map(function(id,i){
             var dis = (full && dropping === null) ? ' disabled' : '';
@@ -1738,10 +1932,10 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
         : '<p class="satchel__empty">nothing new to keep</p>';
       return '<div class="cur__block">' +
                '<p class="cur__head">Keep one — satchel ' + RUN.souvenirs.length + '/' + SATCHEL_MAX + '</p>' +
-               '<div class="satchel" id="sTake">' + take + '</div>' +
+               '<div class="satchel' + (offer.length ? cls : '') + '" id="sTake">' + take + '</div>' +
                (full ? '<p class="cur__note">Satchel full. Tap one below to leave it behind.</p>' : '') +
                '<p class="cur__head">Carried</p>' +
-               '<div class="satchel" id="sMine">' + mine + '</div>' +
+               '<div class="satchel' + (RUN.souvenirs.length ? cls : '') + '" id="sMine">' + mine + '</div>' +
              '</div>';
     }
 
@@ -1790,14 +1984,14 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     }
 
     function wire(){
-      Array.prototype.forEach.call(curtainBody.querySelectorAll('#sTake .pickcard'), function(b){
+      Array.prototype.forEach.call(curtainBody.querySelectorAll('#sTake .cardbtn--pick'), function(b){
         b.addEventListener('click', function(){
           var i = Number(b.getAttribute('data-i'));
           chosen = (chosen === i) ? null : i; skip = false;
           play('take'); build();
         });
       });
-      Array.prototype.forEach.call(curtainBody.querySelectorAll('#sMine .pickcard'), function(b){
+      Array.prototype.forEach.call(curtainBody.querySelectorAll('#sMine .cardbtn--pick'), function(b){
         b.addEventListener('click', function(){
           var i = Number(b.getAttribute('data-i'));
           dropping = (dropping === i) ? null : i;
@@ -1887,7 +2081,6 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
         '<p class="peek__close">Tap anywhere to close</p>' +
       '</div>';
     peekEl.classList.add('is-on');
-    play('take');
   }
   function hidePeek(){ peekEl.classList.remove('is-on'); }
   peekEl.addEventListener('click', hidePeek);
@@ -1913,7 +2106,7 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     cube:[], hop:[], sh:[],
     turnTotal:$('turnTotal'), turnNote:$('turnNote'),
     btnRoll:$('btnRoll'), btnBank:$('btnBank'), btnAgain:$('btnAgain'), charges:$('charges'),
-    log:$('log'), whose:$('whose'),
+    log:$('log'), whose:$('whose'), flares:$('flares'),
     circuitLine:$('circuitLine'), oppName:$('oppName'), oppSub:$('oppSub'), youSub:$('youSub'),
     verdict:$('verdict'), verdictLine:$('verdictLine'),
     draft:$('draft'), draftHead:$('draftHead'), draftSub:$('draftSub'), draftCards:$('draftCards'),
@@ -1933,10 +2126,12 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     return {
       score:0, entries:[],
       dice:[DICE.plain, DICE.plain],
-      rules:{momentum:false, insurance:false, steady:false, warm:false, habit:false, third:false, tithe:false},
+      rules:{momentum:false, insurance:false, steady:false, warm:false, habit:false,
+             third:false, tithe:false, waxseal:false, counting:false, memory:false, iron:false},
       charges:[],
       claimed:{12:false,30:false,55:false},
-      warmUsed:false, habit:0, transmute:false, warded:false
+      warmUsed:false, habit:0, banks:0, transmute:false, warded:false,
+      quill:false, carryOver:0
     };
   }
 
@@ -2023,6 +2218,7 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
 
     mountDice('you');
     paintRunbar();
+    retune();
     say('Rung ' + (RUN.rung+1) + ' — <b class="up">' + opp.name + '</b>. ' + opp.note);
     render();
   }
@@ -2047,9 +2243,10 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
       }
       node.appendChild(face);
     });
-    // the rounded faces leave gaps at the edges; three planes through the
-    // middle fill the volume so you see solid material, not the inside
-    ['core--z','core--x','core--y'].forEach(function(cls){
+    // Rounded faces cut material away at every edge, so a smaller square-cornered
+    // cube sits inside and fills the volume. Any sightline through a corner now
+    // lands on solid material instead of the inside of the far face.
+    ['c-front','c-back','c-right','c-left','c-top','c-bottom'].forEach(function(cls){
       var core = document.createElement('div');
       core.className = 'core ' + cls;
       node.appendChild(core);
@@ -2269,14 +2466,19 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
   function bankValue(who, line, doubled){
     var P = S.p[who], base = line * (doubled ? 2 : 1), parts = [], bonus = 0;
     if(doubled) parts.push({lab:'doubled', amt:line});
-    if(P.rules.steady && base >= 20){ bonus += 4; parts.push({lab:'steady', amt:4}); }
+    if(P.rules.waxseal && P.banks === 0){ bonus += 6; parts.push({lab:'seal', amt:6, card:'waxseal'}); }
+    if(P.rules.counting){
+      var n = (who === 'you' && RUN ? RUN.souvenirs.length : 2);
+      if(n > 0){ bonus += n; parts.push({lab:'counting', amt:n, card:'counting'}); }
+    }
+    if(P.rules.steady && base >= 20){ bonus += 4; parts.push({lab:'steady', amt:4, card:'steady'}); }
     if(P.rules.habit){
-      var h = Math.min(P.habit + 1, 8);
-      bonus += h; parts.push({lab:'habit', amt:h});
+      var hb = Math.min(P.habit + 1, 8);
+      bonus += hb; parts.push({lab:'habit', amt:hb, card:'habit'});
     }
     var db = 0;
     P.dice.forEach(function(d){ if(d.bank) db += d.bank; });
-    if(db){ bonus += db; parts.push({lab:'pauper', amt:db}); }
+    if(db){ bonus += db; parts.push({lab:'pauper', amt:db, card:'pauper'}); }
     return {line:line, base:base, bonus:bonus, total:base + bonus, parts:parts};
   }
   function partsText(v){
@@ -2307,7 +2509,10 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     if(ch.id === 'levy')      return S.p[P === S.p.you ? 'them' : 'you'].score > 0;
     if(ch.id === 'wind')      return S.line > 0;
     if(ch.id === 'warlord')   return S.line > 0;
+    if(ch.id === 'bellows')   return S.line > 0;
+    if(ch.id === 'windfall')  return S.line > 0;
     if(ch.id === 'transmute') return !P.transmute;
+    if(ch.id === 'quill')     return !P.quill;
     if(ch.id === 'ward')      return true;
     return false;
   }
@@ -2378,6 +2583,23 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
   }
 
   function say(html){ el.log.innerHTML = html; }
+
+  /* Whenever a card actually does something it flares in the hand that owns
+     it and names itself in the bay, with a sound of its own. */
+  function flare(who, id, text){
+    var c = card(id); if(!c) return;
+    var node = el[who].load.querySelector('[data-card="' + id + '"]');
+    if(node && !reduced){ node.classList.remove('is-flare'); void node.offsetWidth; node.classList.add('is-flare'); }
+    play('card', id);
+    if(reduced) return;
+    var b = document.createElement('div');
+    b.className = 'flare flare--' + c.cls + (who === 'them' ? ' flare--them' : '');
+    b.innerHTML = icon(id, 'flare__art') +
+                  '<span class="flare__name">' + c.name + '</span>' +
+                  (text ? '<span class="flare__val">' + text + '</span>' : '');
+    el.flares.appendChild(b);
+    setTimeout(function(){ if(b.parentNode) b.parentNode.removeChild(b); }, 1500);
+  }
 
   function showLost(amount, note, good){
     S.lost = amount; S.lostNote = note;
@@ -2556,6 +2778,8 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     var behind = opp.score - P.score;
     if(c.cls === 'dice'){
       if(c.id === 'brass')  v += 1.6;
+      if(c.id === 'whet')   v += 1.5;
+      if(c.id === 'crown')  v += 4.2;
       if(c.id === 'pauper') v += P.score < 60 ? 2.2 : 1.2;
       if(c.id === 'devil')  v += 2.4;
       if(c.id === 'ivory')  v += 3.6;
@@ -2568,6 +2792,10 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
       if(c.id === 'warm')      v += 2.2;
       if(c.id === 'habit')     v += P.score < 60 ? 2.4 : 1.3;
       if(c.id === 'tithe')     v += opp.score > 20 ? 2.5 : 1.4;
+      if(c.id === 'waxseal')   v += 1.1;
+      if(c.id === 'counting')  v += 1.6;
+      if(c.id === 'memory')    v += 2.1;
+      if(c.id === 'iron')      v += P.score > 40 ? 4.4 : 3.2;
       if(c.id === 'third')     v += behind > 12 ? 3.0 : 2.4;
     } else {
       if(c.id === 'shield')    v += 2.1;
@@ -2576,6 +2804,9 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
       if(c.id === 'warlord')   v += 3.0;
       if(c.id === 'transmute') v += 2.7;
       if(c.id === 'ward')      v += opp.charges.some(function(x){ return !x.spent && x.id !== 'shield'; }) ? 3.1 : 1.0;
+      if(c.id === 'quill')     v += 1.7;
+      if(c.id === 'bellows')   v += 2.6;
+      if(c.id === 'windfall')  v += 3.2;
     }
     return v;
   }
@@ -2630,6 +2861,22 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
       return;
     }
 
+    if(ones >= 2 && P.rules.iron){
+      // the ledger is iron: a double 1 can only strike, never wipe
+      flare(who, 'iron', 'held');
+      var ironLine = S.line, ironSaved = P.rules.insurance ? Math.floor(ironLine/3) : 0;
+      if(ironSaved > 0) P.score += ironSaved;
+      if(P.rules.memory) P.carryOver = 6;
+      addEntry(who,'struck',ironLine,P.score);
+      S.line = 0; S.rolls = 0;
+      play('struck');
+      say(name + ' ' + verb + ' ' + shown + ' — the <b class="up">iron ledger</b> holds. The line is struck, the balance stands.');
+      render();
+      showLost(ironLine, 'Struck, but not wiped.');
+      setTimeout(function(){ afterScore(who, function(){ pass(who); after && after(); }); }, 1400);
+      return;
+    }
+
     if(ones >= 2){
       var gone = P.score + S.line;
       addEntry(who,'void',gone,0);
@@ -2647,7 +2894,8 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     if(ones === 1){
       var line = S.line;
       var saved = P.rules.insurance ? Math.floor(line/3) : 0;
-      if(saved > 0) P.score += saved;
+      if(saved > 0){ P.score += saved; flare(who, 'insurance', '+' + saved); }
+      if(P.rules.memory){ P.carryOver = 6; flare(who, 'memory', '+6 next'); }
       addEntry(who,'struck',line,P.score);
       S.line = 0; S.rolls = 0;
       play('struck');
@@ -2664,10 +2912,13 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     }
 
     var bonus = (P.rules.momentum && S.rolls > 0) ? 1 : 0;
-    S.line += sum + bonus;
+    if(bonus) flare(who, 'momentum', '+1');
+    var gain = sum + bonus;
+    if(P.quill){ P.quill = false; gain *= 2; flare(who, 'quill', '×2'); }
+    S.line += gain;
     S.rolls++;
     play('add', S.rolls);
-    say(name + ' ' + verb + ' ' + shown + '. ' + (sum + bonus) +
+    say(name + ' ' + verb + ' ' + shown + '. ' + gain +
         (bonus ? ' with <b class="up">momentum</b>' : '') + ' added — the line stands at ' + S.line + '.');
     render();
     if(!reduced) replay(el.turnTotal,'is-bump');
@@ -2679,6 +2930,8 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     var P = S.p[who];
     var v = bankValue(who, S.line, opts.double);
     if(P.rules.habit) P.habit = Math.min(P.habit + 1, 8);
+    v.parts.forEach(function(pt){ if(pt.card) flare(who, pt.card, '+' + pt.amt); });
+    P.banks++;
     var extras = v.parts.map(function(pt){ return '<b class="up">' + pt.lab + '</b> +' + pt.amt; });
     var line = v.base;
 
@@ -2692,6 +2945,7 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
         F.score -= docked;
         addEntry(foe,'taken',-docked,F.score,'tithe');
         extras.push('<b class="up">tithe</b> −' + docked + ' to them');
+        flare(who, 'tithe', '−' + docked);
       }
     }
     S.line = 0; S.rolls = 0;
@@ -2721,7 +2975,9 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     if(S.over) return;
     S.turn = who === 'you' ? 'them' : 'you';
     S.line = 0; S.lost = null; S.rolls = 0;
-    S.p[S.turn].warmUsed = false;
+    var N = S.p[S.turn];
+    N.warmUsed = false;
+    if(N.carryOver > 0){ S.line = N.carryOver; N.carryOver = 0; flare(S.turn, 'memory', '+' + S.line); }
     play('pass');
     mountDice(S.turn);
     render();
@@ -2797,6 +3053,38 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
       setTimeout(function(){ S.busy = false; render(); if(who === 'them') machineStep(); }, 1000);
       return true;
     }
+    if(ch.id === 'quill'){
+      P.quill = true;
+      flare(who, 'quill', 'set');
+      say('<b class="up">Quill</b> is inked. The next roll counts twice.');
+      render();
+      if(who === 'them') setTimeout(machineStep, 700);
+      return true;
+    }
+    if(ch.id === 'bellows'){
+      var before = S.line;
+      S.line = before * 2;
+      flare(who, 'bellows', '×2');
+      say('<b class="up">Bellows</b> — the line swells from ' + before + ' to ' + S.line + '. Still unbanked.');
+      render();
+      if(!reduced) replay(el.turnTotal,'is-bump');
+      if(who === 'them') setTimeout(machineStep, 800);
+      return true;
+    }
+    if(ch.id === 'windfall'){
+      var wv = bankValue(who, S.line, false);
+      P.score += wv.total;
+      P.banks++;
+      addEntry(who,'banked',wv.total,P.score,partsText(wv) + ' windfall');
+      flare(who, 'windfall', '+' + wv.total);
+      say('<b class="up">Windfall</b> — ' + wv.total + ' banked, and the line still stands at ' + S.line + '.');
+      S.busy = true; render();
+      if(P.score >= GOAL){ setTimeout(function(){ finish(who); }, 900); return true; }
+      setTimeout(function(){
+        afterScore(who, function(){ S.busy = false; render(); if(who === 'them') machineStep(); });
+      }, 1000);
+      return true;
+    }
     if(ch.id === 'transmute'){
       P.transmute = true;
       play('transmute');
@@ -2844,7 +3132,7 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     var bonus = (P.rules.momentum && S.rolls > 0) ? 1 : 0;
     var keep = P.rules.insurance ? Math.floor(S.line/3) : 0;
     var strike = shielded ? 0 : -(S.line - keep);
-    var wipe   = shielded ? 0 : -(P.score + S.line);
+    var wipe   = shielded ? 0 : (P.rules.iron ? -(S.line - keep) : -(P.score + S.line));
     var total = 0, n = 0;
 
     function walk(i, vals){
@@ -2909,7 +3197,19 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
       if(ti >= 0){ playCharge('them', ti); return; }
     }
 
+    if(S.line >= 12 && hasCharge(P,'quill') && !P.quill){
+      var qi = -1; P.charges.forEach(function(c,i){ if(c.id === 'quill' && !c.spent) qi = i; });
+      if(qi >= 0){ playCharge('them', qi); return; }
+    }
+    if(S.line >= 16 && hasCharge(P,'bellows')){
+      var bi = -1; P.charges.forEach(function(c,i){ if(c.id === 'bellows' && !c.spent) bi = i; });
+      if(bi >= 0){ playCharge('them', bi); return; }
+    }
     if(!machineWantsRoll()){
+      if(S.line >= 14 && hasCharge(P,'windfall')){
+        var fi = -1; P.charges.forEach(function(c,i){ if(c.id === 'windfall' && !c.spent) fi = i; });
+        if(fi >= 0){ playCharge('them', fi); return; }
+      }
       if(S.line >= 16 && hasCharge(P,'warlord')){
         var di = -1; P.charges.forEach(function(c,i){ if(c.id === 'warlord' && !c.spent) di = i; });
         if(di >= 0){ playCharge('them', di); return; }
@@ -3024,6 +3324,9 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     if(is('KeyD','d',68)){ e.preventDefault(); tryCharge('warlord'); return; }
     if(is('KeyT','t',84)){ e.preventDefault(); tryCharge('transmute'); return; }
     if(is('KeyR','r',82)){ e.preventDefault(); tryCharge('ward'); return; }
+    if(is('KeyQ','q',81)){ e.preventDefault(); tryCharge('quill'); return; }
+    if(is('KeyG','g',71)){ e.preventDefault(); tryCharge('bellows'); return; }
+    if(is('KeyF','f',70)){ e.preventDefault(); tryCharge('windfall'); return; }
     if(code === 'Space' || key === ' ' || kc === 32){
       if(onButton) return;
       e.preventDefault(); tap(el.btnRoll); el.btnRoll.click();
