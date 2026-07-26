@@ -1,5 +1,2 @@
-- in 3d mode i noticed that die corners are non existent and you can see through them the inner texture of the die.
-- silver chalk card doesnt make sence next to a third die, cause third die also adds chalk. maybe we can rework the drafting logic for silver or rework the dies here?
-- its unclear how to get to the shop. i had to press "how to play" then "back" and only on the overview screen i was able to spend my purse. shouldnt it be before the start of the stage?
-- add hists when i click on mine and enemy cards on hand, so its not only tooltip but a proper tooltip for mobile as well as desktop explainin what the card does. maybe even a popup with the same design as when we first pick the card?
-- the mobile for some reason has a small horisontal scroll and non game screens are a bit wider than the main game screen
+- i feel like we have too few cards and effects in our roster. each run feels identical and not a lot of cards have mid to late game synergy. lets introduce more and think houw the satchel deck would complement the late game challenge
+- 
