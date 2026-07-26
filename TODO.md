@@ -1,8 +1,3 @@
-- i feel like we have too few cards and effects in our roster. each run feels identical and not a lot of cards have mid to late game synergy. lets introduce more and think houw the satchel deck would complement the late game challenge
-- the same hint we have on the cards need to be shown everywhere in between screens also. like when deciding which cards to take with you its especially important to just show them in full, instead of collapsed view to make a clear informed decision.
-- dont show the market shop screen if player cant affor anything there atm
-- i can still see through the corners of 3d dice. fix the model and make it look nicer for all dice.
-- transform the music a bit for each foe we face. each opponent needs to have a leimotif that sublimely veawes into the soundscape
-- no need for sound effect when popping up the card hint
-- you know how in mario each subsequent note is a bit different even on the same action? like if i back a thing several times it doesnt just play same note over and over. instead it kinda plays a little harmony with each bash. so its not repetitive and boring. we need similar system for events and UI sounds and actions.
-- when each card effect is activated we need a specific custom animation and sound effect played for that particular card. unbtrusive and immersive
+- remove the "Drag a die to read its faces · tap to throw" instructions they arent neede
+- make the main center column with dice a bit wider on desktop. sometimes cards barely fit in it while legrers are way too wide
+- 
