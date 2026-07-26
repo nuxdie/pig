@@ -1,6 +1,6 @@
 import { play } from '../audio/sfx';
 import { retune, setTensionSource } from '../audio/music';
-import type { Tray } from '../dice/dice3d';
+import type { ThrowSide, Tray } from '../dice/dice3d';
 import { machineValue, machineWantsRoll } from './ai';
 import { card, CARDS } from './cards';
 import { CIRCUIT, GOAL, MARKET, MILES, TIER_OF, WARM_CAP } from './circuit';
@@ -254,6 +254,10 @@ function rollDice(who: Side, cb: (vals: number[]) => void): void {
       }
     : null;
 
+  // You sit on the left of the board and the opponent on the right, so each
+  // side throws in from its own end of the tray.
+  const from: ThrowSide = who === 'you' ? 'left' : 'right';
+
   const landed = (slots: number[]) => {
     const vals = slots.map((s, i) => P.dice[i].faces[s]);
     const ones: number[] = [];
@@ -268,21 +272,23 @@ function rollDice(who: Side, cb: (vals: number[]) => void): void {
       const idx = ones[0];
       say('<b class="up">Warm hand</b> — that 1 goes again.');
       setTimeout(() => {
-        throwOn([idx], null, (again) => cb(again.map((s, i) => P.dice[i].faces[s])));
+        throwOn([idx], from, null, (again) => cb(again.map((s, i) => P.dice[i].faces[s])));
       }, 620);
       return;
     }
     cb(vals);
   };
 
-  throwOn(all, pinFor, landed);
+  throwOn(all, from, pinFor, landed);
 }
 
 type PinFor = ((rolled: number[]) => Map<number, number>) | null;
 
 /** Throw through the tray, or fall back to a plain draw if there is none. */
-function throwOn(which: number[], pinFor: PinFor, done: (slots: number[]) => void): void {
-  if (tray) { tray.throwDice(which, pinFor, done); return; }
+function throwOn(
+  which: number[], from: ThrowSide, pinFor: PinFor, done: (slots: number[]) => void
+): void {
+  if (tray) { tray.throwDice(which, from, pinFor, done); return; }
   const n = S.p[S.turn].dice.length;
   const slots = S.slot.slice(0, n).map((s, i) => (which.includes(i) ? Math.floor(Math.random() * 6) : s));
   const pin = pinFor ? pinFor(slots) : null;

@@ -127,17 +127,21 @@ function randomQuat(R: () => number): [number, number, number, number] {
 
 export interface RestState { x: number; y: number; z: number; q: [number, number, number, number]; }
 
+/** Which end of the tray the dice come in from — the thrower's own side. */
+export type ThrowSide = 'left' | 'right';
+
 /**
  * One throw, in a world of its own. `active` are the dice being thrown;
  * anything in `resting` is placed as it lies so a re-thrown die can still
  * knock against it.
  */
 function simulate(
-  count: number, active: number[], resting: Map<number, RestState>, seed: number, record: boolean
+  count: number, active: number[], resting: Map<number, RestState>,
+  from: ThrowSide, seed: number, record: boolean
 ): Trajectory {
   const { world, bodies } = makeEnv(count);
   try {
-    return run(world, bodies, count, active, resting, seed, record);
+    return run(world, bodies, count, active, resting, from, seed, record);
   } finally {
     world.free();
   }
@@ -145,7 +149,8 @@ function simulate(
 
 function run(
   world: RAPIER.World, bodies: RAPIER.RigidBody[],
-  count: number, active: number[], resting: Map<number, RestState>, seed: number, record: boolean
+  count: number, active: number[], resting: Map<number, RestState>,
+  from: ThrowSide, seed: number, record: boolean
 ): Trajectory {
   const R = mulberry(seed);
   const q0 = new Quaternion();
@@ -163,14 +168,18 @@ function run(
       continue;
     }
 
+    // A throw from the right is the mirror image of one from the left. The
+    // tray is symmetric about x and the spin is already symmetric, so the
+    // two sides are physically — and statistically — the same throw.
+    const dir = from === 'left' ? 1 : -1;
     const q = randomQuat(R);
     b.setTranslation({
-      x: -TRAY_W / 2 + 0.8 + i * 0.4 + (R() - 0.5) * 0.25,
+      x: dir * (-TRAY_W / 2 + 0.8 + i * 0.4 + (R() - 0.5) * 0.25),
       y: 2.7 + R() * 1.0,
       z: -TRAY_D / 2 + 0.8 + (R() - 0.5) * 0.4
     }, true);
     b.setRotation({ x: q[0], y: q[1], z: q[2], w: q[3] }, true);
-    b.setLinvel({ x: 3.4 + R() * 2.4, y: -0.6, z: 1.7 + R() * 1.9 }, true);
+    b.setLinvel({ x: dir * (3.4 + R() * 2.4), y: -0.6, z: 1.7 + R() * 1.9 }, true);
     b.setAngvel({ x: (R() - 0.5) * 36, y: (R() - 0.5) * 36, z: (R() - 0.5) * 36 }, true);
     b.wakeUp();
   }
@@ -219,24 +228,26 @@ function run(
 const COCK_BUDGET = 40;
 
 /**
- * Throw `active` dice. `pin` maps a die index to a slot it must land on;
- * anything not pinned is free and takes whatever the dice give it.
+ * Throw `active` dice in from `from` — the thrower's own side of the tray.
+ * `pin` maps a die index to a slot it must land on; anything not pinned is
+ * free and takes whatever the dice give it.
  */
 export function solveThrow(
   count: number,
   active: number[],
   resting: Map<number, RestState>,
   pin: Map<number, number>,
+  from: ThrowSide,
   seed = (Math.random() * 0x7fffffff) | 0
 ): Trajectory {
   if (pin.size === 0) {
     for (let k = 0; k < COCK_BUDGET; k++) {
       const trySeed = (seed + k * 2654435761) >>> 0;
-      if (simulate(count, active, resting, trySeed, false).clean) {
-          return simulate(count, active, resting, trySeed, true);
+      if (simulate(count, active, resting, from, trySeed, false).clean) {
+          return simulate(count, active, resting, from, trySeed, true);
       }
     }
-    return simulate(count, active, resting, seed, true);
+    return simulate(count, active, resting, from, seed, true);
   }
 
   // Rejection sampling. Bounded so a pathological ask (all three dice
@@ -249,15 +260,15 @@ export function solveThrow(
 
   for (let k = 0; k < BUDGET; k++) {
     const trySeed = (seed + k * 2654435761) >>> 0;
-    const t = simulate(count, active, resting, trySeed, false);
+    const t = simulate(count, active, resting, from, trySeed, false);
     let score = 0;
     pin.forEach((want, i) => { if (t.slots[i] === want) score++; });
     if (!t.clean) score -= 1;
     if (score > bestScore) { bestScore = score; bestSeed = trySeed; }
     if (score === pin.size) {
-      return simulate(count, active, resting, trySeed, true);
+      return simulate(count, active, resting, from, trySeed, true);
     }
   }
 
-  return simulate(count, active, resting, bestSeed, true);
+  return simulate(count, active, resting, from, bestSeed, true);
 }
