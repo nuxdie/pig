@@ -1,3 +1,0 @@
-- remove the "Drag a die to read its faces · tap to throw" instructions they arent neede
-- make the main center column with dice a bit wider on desktop. sometimes cards barely fit in it while legrers are way too wide
-- 

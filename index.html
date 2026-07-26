@@ -281,10 +281,11 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
 
 /* ---------- board ---------- */
 .board{
-  display:grid;grid-template-columns:1fr 1.2fr 1fr;
+  display:grid;
+  grid-template-columns:minmax(190px,0.78fr) minmax(360px,1.55fr) minmax(190px,0.78fr);
   grid-template-areas:"you bay them";
-  gap:clamp(10px,2vw,24px);align-items:start;
-  max-width:1240px;margin:0 auto;
+  gap:clamp(10px,1.8vw,22px);align-items:start;
+  max-width:1280px;margin:0 auto;
 }
 
 /* ---------- columns ---------- */
@@ -336,7 +337,7 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
   display:grid;grid-template-columns:2.2em minmax(0,1fr) 3.4em;gap:4px;align-items:baseline;
   font-family:var(--mono);font-size:15px;padding:5px 0;border-bottom:1px solid var(--rule-soft);
 }
-.entry__cell{display:flex;flex-direction:column;gap:1px;min-width:0}
+.entry__cell{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0}
 .entry__note{
   font-family:var(--mono);font-size:9px;letter-spacing:.02em;color:var(--pencil);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
@@ -630,10 +631,6 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
   100%{transform:translateY(0)}
 }
 .tray.is-nudge .hop:not(.is-held){transform:translateY(-3px) rotateX(-7deg) rotateY(7deg)}
-.tray__hint{
-  font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--pencil);text-align:center;margin:-6px 0 0;
-}
 .shadow{
   position:absolute;left:12%;right:12%;bottom:-11px;height:8px;
   background:radial-gradient(ellipse at center, rgba(31,36,28,.34), rgba(31,36,28,0) 70%);
@@ -952,7 +949,6 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
       </div>
 
       <div class="tray" id="tray" data-n="2"></div>
-      <p class="tray__hint">Drag a die to read its faces · tap to throw</p>
 
       <div class="flares" id="flares" aria-hidden="true"></div>
 
@@ -1897,9 +1893,10 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
   /* ---- after a win: keep a card, then walk or play on ---- */
   function loadoutIds(P){
     var out = [];
-    P.dice.forEach(function(d){ if(d.id !== 'plain' && out.indexOf(d.id) < 0) out.push(d.id); });
-    Object.keys(P.rules).forEach(function(r){ if(P.rules[r] && out.indexOf(r) < 0) out.push(r); });
-    P.charges.forEach(function(c){ if(out.indexOf(c.id) < 0) out.push(c.id); });
+    function add(id){ if(card(id) && out.indexOf(id) < 0) out.push(id); }
+    P.dice.forEach(function(d){ if(d.id !== 'plain') add(d.id); });
+    Object.keys(P.rules).forEach(function(r){ if(P.rules[r]) add(r); });
+    P.charges.forEach(function(c){ add(c.id); });
     return out;
   }
 
@@ -2497,9 +2494,18 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
              icon(c.id, 'mini__art') +
              '<span class="mini__lab">' + c.short + '</span></span>';
     }
-    P.dice.forEach(function(d){ if(d.id !== 'plain') html += mini(card(d.id), false); });
-    Object.keys(P.rules).forEach(function(r){ if(P.rules[r]) html += mini(card(r), false); });
-    P.charges.forEach(function(ch){ html += mini(card(ch.id), ch.spent); });
+    P.dice.forEach(function(d){
+      var c = card(d.id);                 // chalk arrives via Third die and has no card of its own
+      if(c) html += mini(c, false);
+    });
+    Object.keys(P.rules).forEach(function(r){
+      var c = P.rules[r] ? card(r) : null;
+      if(c) html += mini(c, false);
+    });
+    P.charges.forEach(function(ch){
+      var c = card(ch.id);
+      if(c) html += mini(c, ch.spent);
+    });
     if(!html) html = '<span class="mini mini--none"><span class="mini__lab">no cards</span></span>';
     if(box.innerHTML !== html) box.innerHTML = html;
   }
@@ -2661,7 +2667,7 @@ input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4p
     if(c.cls === 'dice'){
       var idx = -1;
       for(var i=0;i<P.dice.length;i++){ if(P.dice[i].id === 'plain'){ idx = i; break; } }
-      if(idx < 0) idx = 0;
+      if(idx < 0) return;                 // nothing plain left to replace
       P.dice[idx] = DICE[c.die];
       if(S.turn === who) mountDice(who);
     } else if(c.cls === 'rule'){
