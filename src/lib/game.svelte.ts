@@ -228,27 +228,33 @@ export function startMatch(): void {
 
 /* ---------------------------- rolling ---------------------------- */
 
+/* The dice are the randomness now: a throw is one physics simulation and
+   whatever comes up is what was rolled. Nothing here picks a face except
+   Transmute, which pins the dice that rolled a 1 — and it does so before
+   they land, so no 1 is ever shown. */
 function rollDice(who: Side, cb: (vals: number[]) => void): void {
   const P = S.p[who];
   const n = P.dice.length;
-  const slots: number[] = [];
-  for (let i = 0; i < n; i++) { slots.push(Math.floor(Math.random() * 6)); }
-
-  // Transmute is resolved before the dice land, so no 1 ever shows.
-  if (P.transmute) {
-    P.transmute = false;
-    let changed = false;
-    for (let j = 0; j < n; j++) {
-      if (P.dice[j].faces[slots[j]] === 1) { slots[j] = bestSlot(P.dice[j]); changed = true; }
-    }
-    play('transmute');
-    say('<b class="up">Transmute</b> — ' + (changed ? 'the 1s turn to gold.' : 'nothing to turn; the roll was clean.'));
-  }
-
   const all: number[] = [];
   for (let q = 0; q < n; q++) all.push(q);
 
-  tray?.throw(all, slots, () => {
+  const transmuting = P.transmute;
+  if (transmuting) P.transmute = false;
+
+  const pinFor = transmuting
+    ? (rolled: number[]) => {
+        const pin = new Map<number, number>();
+        for (let j = 0; j < n; j++) {
+          if (P.dice[j].faces[rolled[j]] === 1) pin.set(j, bestSlot(P.dice[j]));
+        }
+        play('transmute');
+        say('<b class="up">Transmute</b> — ' +
+            (pin.size ? 'the 1s turn to gold.' : 'nothing to turn; the roll was clean.'));
+        return pin;
+      }
+    : null;
+
+  const landed = (slots: number[]) => {
     const vals = slots.map((s, i) => P.dice[i].faces[s]);
     const ones: number[] = [];
     vals.forEach((v, i) => { if (v === 1) ones.push(i); });
@@ -262,15 +268,27 @@ function rollDice(who: Side, cb: (vals: number[]) => void): void {
       const idx = ones[0];
       say('<b class="up">Warm hand</b> — that 1 goes again.');
       setTimeout(() => {
-        slots[idx] = Math.floor(Math.random() * 6);
-        tray?.throw([idx], slots, () => {
-          cb(slots.map((s, i) => P.dice[i].faces[s]));
-        });
+        throwOn([idx], null, (again) => cb(again.map((s, i) => P.dice[i].faces[s])));
       }, 620);
       return;
     }
     cb(vals);
-  });
+  };
+
+  throwOn(all, pinFor, landed);
+}
+
+type PinFor = ((rolled: number[]) => Map<number, number>) | null;
+
+/** Throw through the tray, or fall back to a plain draw if there is none. */
+function throwOn(which: number[], pinFor: PinFor, done: (slots: number[]) => void): void {
+  if (tray) { tray.throwDice(which, pinFor, done); return; }
+  const n = S.p[S.turn].dice.length;
+  const slots = S.slot.slice(0, n).map((s, i) => (which.includes(i) ? Math.floor(Math.random() * 6) : s));
+  const pin = pinFor ? pinFor(slots) : null;
+  pin?.forEach((want, i) => { slots[i] = want; });
+  slots.forEach((s, i) => { S.slot[i] = s; });
+  done(slots);
 }
 
 /* ---------------------------- the draft ---------------------------- */

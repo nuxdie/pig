@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import wasm from 'vite-plugin-wasm';
 
 export default defineConfig({
-  plugins: [svelte()],
-  build: { target: 'es2020' }
+  plugins: [svelte(), wasm()],
+  build: { target: 'es2022' },
+  worker: { format: 'es' }
 });

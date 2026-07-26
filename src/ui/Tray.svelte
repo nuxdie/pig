@@ -1,21 +1,32 @@
 <script lang="ts">
-  import { Tray } from '../dice/dice3d';
   import { canAct, doRoll, S, setTray } from '../lib/game.svelte';
 
   let root: HTMLDivElement;
 
-  /* The tray owns its own DOM: a Tray instance builds the cubes and writes
-     transforms straight onto them. Svelte's job here is only to hand over
-     the element and keep the reference registered. */
+  /* The tray owns its own DOM and its own renderer: three.js and the physics
+     engine are the heaviest thing here by far, so they load as a separate
+     chunk while the player is still reading the intro. Until it arrives the
+     game is fully playable — rolls fall back to a plain draw. */
   $effect(() => {
-    const t = new Tray(root, {
-      canHandle: () => canAct(),
-      onTap: () => { if (canAct()) doRoll(); },
-      onSlot: (i, slot) => { S.slot[i] = slot; }
+    let live = true;
+    let tray: { destroy(): void } | null = null;
+
+    import('../dice/dice3d').then(({ Tray }) => {
+      if (!live) return;
+      tray = new Tray(root, {
+        canHandle: () => canAct(),
+        onTap: () => { if (canAct()) doRoll(); },
+        onSlot: (i, slot) => { S.slot[i] = slot; }
+      });
+      setTray(tray as never);
     });
-    setTray(t);
-    return () => setTray(null);
+
+    return () => {
+      live = false;
+      setTray(null);
+      tray?.destroy();
+    };
   });
 </script>
 
-<div class="tray" data-n="2" bind:this={root}></div>
+<div class="tray" bind:this={root}></div>

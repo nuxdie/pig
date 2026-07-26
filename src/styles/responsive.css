@@ -2,7 +2,6 @@
    SMALL SCREENS — balances on top, dice and buttons in the thumb zone
    ===================================================================== */
 @media (max-width:820px){
-  :root{--dieBase:62px}
   .sheet{padding:12px 12px 22px}
   .sheet::after{width:8px}
   .masthead{gap:6px 12px;padding-bottom:9px;margin-bottom:11px;align-items:center}
@@ -38,7 +37,7 @@
 
   .bay{gap:9px;padding:11px}
   .whose{width:calc(100% + 22px);margin:-11px -11px 0;padding:9px 8px;font-size:11px;letter-spacing:.18em}
-  .tray{gap:14px;padding:2px 0 8px}
+  .tray{height:clamp(124px,31vw,152px)}
   .online__lab{font-size:9px}
   .online__num{font-size:40px}
   .online__note{font-size:11px}
@@ -68,7 +67,7 @@
 }
 
 @media (max-width:380px){
-  :root{--dieBase:55px}
+  .tray{height:118px}
   .col__totalnum{font-size:22px}
   .lines{height:60px}
   .mini{width:29px;height:41px}

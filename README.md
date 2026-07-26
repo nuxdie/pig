@@ -37,8 +37,13 @@ src/
     engine.ts          context, reverb, delay, tone/bell/knock primitives
     sfx.ts             one signature per card, built from the playing chord
     music.ts           the generative score and each foe's leitmotif
-  dice/
-    dice3d.ts          the tray — hand-written DOM, deliberately not a component
+  dice/                the tray — WebGL and rigid-body physics
+    solver.ts          Rapier world, the throw, trajectory recording
+    scene.ts           renderer, camera, lights, shadow-catching floor
+    dieMesh.ts         rounded body + real pip geometry
+    materials.ts       one PBR surface per die (brass is actual metal)
+    faces.ts           slot ↔ normal ↔ orientation
+    dice3d.ts          the Tray: mount, throw, drag-to-inspect
   ui/                  Svelte components
     App.svelte         masthead + board
     Column.svelte      one player's ledger, meter, loadout, stamp
@@ -49,12 +54,26 @@ src/
   styles/              the original stylesheet, split by concern
 ```
 
-### Two deliberate choices
+### Three deliberate choices
 
-**The dice are not a component.** `dice/dice3d.ts` builds real 3D cubes and
-writes transforms straight onto the nodes, leaning on forced reflow to restart
-landing animations. A render pass on top of that fights it, so that subtree
-opts out of Svelte and owns itself. `Tray.svelte` only hands over the element.
+**The dice are the random number generator.** A roll is one rigid-body
+simulation, and whichever face comes up *is* what was rolled — nothing picks a
+number and then animates towards it. The one exception is Transmute, which has
+to turn 1s into a particular face; those dice are pinned by re-throwing until
+the simulation agrees, and only the dice that actually rolled a 1 are pinned.
+
+That makes fairness measurable, and it is worth knowing the result: these dice
+are close to uniform but not exactly uniform — a residual bias of roughly one
+to two per cent on a face, well short of what a player would notice but short
+of `Math.random` too. `solver.ts` documents the measurements, what makes it
+worse, and what an exact fix would cost. Re-run that check before touching the
+throw, the tray, or the solver settings.
+
+**The dice are not a component.** `dice/` owns its own canvas, scene graph and
+animation loop. Svelte hands it an element and otherwise stays out of the way;
+`Tray.svelte` is twenty lines. It is also loaded with `import()`, so three.js
+and the physics wasm arrive as a separate chunk while the player is reading the
+intro — and the game is fully playable before they land.
 
 **The stylesheets are global, not scoped.** Card faces and icons are injected
 with `{@html}`, and Svelte's style scoping would silently drop any rule that
