@@ -59,8 +59,10 @@ src/
     Dev.svelte         devmode: stages, cheats, every card, every die
     Draft.svelte       the three cards on offer
     Curtain.svelte     every screen that is not the board
+    Theme.svelte       light paper, dark paper, or whatever the system says
     screens/           intro, circuit, market, spoils, walked, ruin
   styles/              the original stylesheet, split by concern
+    tokens.css         both palettes; nothing else may name a colour
 ```
 
 ### Five deliberate choices
@@ -117,10 +119,19 @@ with `{@html}`, and Svelte's style scoping would silently drop any rule that
 matches them. The CSS is split by concern into `styles/` and imported from
 `main.ts` in cascade order.
 
+**Two sheets, one vocabulary.** Every colour is a token in `tokens.css`, named
+for the job it does rather than the colour it is — a surface, a rule, an
+accent, the thing printed *on* an accent. The dark ledger is a second set of
+values under `[data-theme="dark"]`, not a second stylesheet, and no other file
+is allowed to write a literal colour. `index.html` stamps the chosen sheet on
+`<html>` before the CSS loads, so the page never opens on the wrong one.
+
 ## Playing
 
 Space rolls, `B` banks, `1`/`2`/`3` take a card at a draft, `M` mutes.
-Charges have their own keys, printed on their buttons.
+Charges have their own keys, printed on their buttons. The word in the top bar
+between full screen and sound turns the paper light, dark, or over to the
+system setting.
 
 Backtick opens devmode — jump to any rung, hand yourself any card or die,
 move either score, force a draft, look at every card and every die at once.

@@ -18,6 +18,11 @@ import './styles/responsive.css';
 import { showScreen, startMatch } from './lib/game.svelte';
 import { hasRun, loadSaved, newRun, RUN } from './lib/run.svelte';
 import App from './ui/App.svelte';
+import { startTheme } from './ui/theme.svelte';
+
+/* index.html has already picked a sheet for the first paint; this takes the
+   choice over, and keeps following the system if that is what was asked. */
+startTheme();
 
 /* A run has to exist before the board mounts — every column reads it. */
 loadSaved();

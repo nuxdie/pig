@@ -10,6 +10,7 @@
   import Peek from './Peek.svelte';
   import Scoreline from './Scoreline.svelte';
   import Sound from './Sound.svelte';
+  import Theme from './Theme.svelte';
 
   /* One column, and the dice at the middle of it. Everything a turn needs
      is between the two balances and the two buttons; everything else was
@@ -45,6 +46,7 @@
     <span class="topbar__gap"></span>
     <button class="linkbtn" onclick={showHelp}>How to play</button>
     <Fullscreen />
+    <Theme />
     <Sound />
   </header>
 

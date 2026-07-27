@@ -6,7 +6,7 @@
 .flare{
   display:flex;align-items:center;gap:7px;
   padding:5px 11px 5px 8px;border:1px solid var(--good);border-radius:3px;
-  background:#fdfdf7;color:var(--good);
+  background:var(--card);color:var(--good);
   font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
   animation:flareIn 1.5s cubic-bezier(.2,.9,.3,1) both;
 }
@@ -64,7 +64,7 @@
 .feed__row{
   display:flex;align-items:baseline;gap:8px;
   padding:3px 8px;border-left:3px solid var(--ink);
-  background:rgba(253,253,247,.86);
+  background:var(--card-veil);
   font-family:var(--mono);font-size:11px;line-height:1.25;white-space:nowrap;
   animation:feedIn 5.2s cubic-bezier(.2,.9,.3,1) both;
 }

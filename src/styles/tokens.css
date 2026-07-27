@@ -1,19 +1,112 @@
+/* ---------- the palette ----------
+   Two ledgers, one vocabulary. Every colour in the game is named for the job
+   it does — a surface, a line, an accent, the thing printed on top of an
+   accent — so the dark sheet is a second set of values rather than a second
+   stylesheet. Nothing below this file may name a colour directly.
+
+   `data-theme` is stamped on <html> before first paint (index.html) and kept
+   there by ui/theme.svelte.ts; it is always resolved to light or dark, never
+   left on "auto", so the cascade here needs exactly two blocks. */
 :root{
-  --paper:#e6e9d8;
-  --paper-hi:#f2f4e8;
+  color-scheme:light;
+
+  /* surfaces, from the page up */
+  --paper:#e6e9d8;              /* the sheet itself */
+  --paper-hi:#f2f4e8;           /* the table laid on it */
+  --card:#fdfdf7;               /* anything cut out and dealt */
+  --card-hi:#fff;               /* the same, under the cursor */
+  --card-veil:rgba(253,253,247,.86);
+  --scrim:rgba(230,233,216,.9);
+
+  /* lines and type */
   --rule:#a6b691;
   --rule-soft:#c6cfb4;
   --ink:#1f241c;
   --ink-soft:#5c6355;
   --pencil:#818873;
+
+  /* the hard printed shadow this game leans on, and its softer cousins */
+  --edge:#1f241c;
+  --shade:rgba(31,36,28,.22);
+  --shade-hi:rgba(31,36,28,.28);
+  --shade-lo:rgba(0,0,0,.05);
+
+  /* accents: a base to fill with, a lit one for hover, a deep one to sit under */
   --red:#a8362b;
+  --red-lit:#bd4034;
+  --red-deep:#6d211a;
+  --red-wash:rgba(168,54,43,.05);
   --good:#2e6b4c;
+  --good-deep:#1d4b34;
   --stamp:#2c4463;
+  --stamp-lit:#3a5883;
+  --stamp-deep:#17283c;
+
+  /* what gets printed *on* a solid accent — flips with the sheet, because in
+     the dark the accents are the light thing */
+  --on-solid:#fff;
+  --on-solid-soft:rgba(255,255,255,.85);
+  --on-solid-line:rgba(255,255,255,.45);
+  --on-solid-wash:rgba(0,0,0,.25);
+  --halo:rgba(255,255,255,.55);
+
+  /* tiers */
   --bone:#f6f1e2;
   --tin:#7f8079;
   --silver:#67757f;
   --gold:#9a7a24;
+  --gold-deep:#8a6d1e;
+  --gold-lit:#b9942f;
+  --shade-gold:rgba(154,122,36,.35);
+
   --mono:"Courier Prime","Courier New",monospace;
   --slab:"Zilla Slab",Georgia,serif;
 }
 
+/* The same ledger after dark: the paper goes to carbon, the ink to bone, and
+   every accent lifts far enough off the page to still be read at a glance. */
+:root[data-theme="dark"]{
+  color-scheme:dark;
+
+  --paper:#181b13;
+  --paper-hi:#20241a;
+  --card:#272c1f;
+  --card-hi:#313624;
+  --card-veil:rgba(39,44,31,.88);
+  --scrim:rgba(20,23,15,.92);
+
+  --rule:#4e5842;
+  --rule-soft:#363d2c;
+  --ink:#e8eada;
+  --ink-soft:#a9b09b;
+  --pencil:#7f8672;
+
+  --edge:#0a0c07;
+  --shade:rgba(0,0,0,.45);
+  --shade-hi:rgba(0,0,0,.6);
+  --shade-lo:rgba(0,0,0,.3);
+
+  --red:#d9705f;
+  --red-lit:#e4877a;
+  --red-deep:#5b1c14;
+  --red-wash:rgba(217,112,95,.09);
+  --good:#6cc08e;
+  --good-deep:#1e4a34;
+  --stamp:#7ea8d8;
+  --stamp-lit:#95bbe6;
+  --stamp-deep:#14273c;
+
+  --on-solid:#12150e;
+  --on-solid-soft:rgba(18,21,14,.78);
+  --on-solid-line:rgba(18,21,14,.38);
+  --on-solid-wash:rgba(0,0,0,.22);
+  --halo:rgba(0,0,0,.6);
+
+  --bone:#2b3021;
+  --tin:#949a8b;
+  --silver:#9db2c1;
+  --gold:#cfa945;
+  --gold-deep:#a5832a;
+  --gold-lit:#e0bd63;
+  --shade-gold:rgba(207,169,69,.3);
+}

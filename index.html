@@ -3,7 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#e6e9d8">
 <title>Pig — a dice game ledger</title>
+<script>
+/* Pick the sheet before the stylesheet paints, so the page never opens on the
+   wrong one. src/ui/theme.svelte.ts owns this afterwards — same key, same
+   fallback. */
+(function () {
+  try {
+    var pick = localStorage.getItem('pig.theme.v1');
+  } catch (e) { /* storage refused; the system setting will do */ }
+  var sheet = pick === 'light' || pick === 'dark' ? pick
+    : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', sheet);
+  if (sheet === 'dark') {
+    document.querySelector('meta[name=theme-color]').setAttribute('content', '#181b13');
+  }
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Zilla+Slab:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">

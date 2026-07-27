@@ -66,7 +66,9 @@
 .notch--tin{background:var(--tin)}
 .notch--silver{background:var(--silver)}
 .notch--gold{background:var(--gold)}
-.notch.is-hit{opacity:1;width:3px;box-shadow:0 0 0 1px rgba(255,255,255,.55)}
+.notch.is-hit{opacity:1;width:3px;box-shadow:0 0 0 1px var(--halo)}
 
 .side__hand{display:flex;flex-wrap:wrap;gap:4px;margin-top:9px;min-height:50px}
-.side--them .side__hand{justify-content:flex-end}
+/* `safe` so that a hand too wide for a phone column falls back to packing
+   left and stays scrollable, rather than overflowing off the near edge. */
+.side--them .side__hand{justify-content:safe flex-end}

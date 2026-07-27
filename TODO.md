@@ -1,0 +1,9 @@
+- i want to add multiplayer support, so humans can play against each other, but i dont want to host a server
+- if we're adding multiplayer, i want a global leaderboard
+- we need to rework the post rung screen from the ground up, so its easier to read and act on. think about the UI path and actions that most users would take and optimise for that. UI is done when theres nothing left to remove and only essential hot itemas are left, not when theres nothing left to add. be consice and mind the screen real estate, yet dont lose clarity and scannability
+- make the main interactions during the game on mousedown, instead of on click, so it feels faster
+- the UI chooser between 3 cards during gameplay can be overlayed instead of trying to fit in into the same space where the dice are. you cant continue without chooseing anyways, so it makes little sence to show both dice and cards picker on top
+- the music themes need much work. i want each opponent to have their own theme melody, not just variations of the same track
+- i think that instead of showing separate theme and sound settings, we could just show a single settings button that would hold our settings proper
+- cards that were used dont have to hang around on hand display crossed. we can just remove them with an animation that makes it clear they've been used.
+- the sacrifice mechanic needs to be reset once the player starts new run, i think currently i only saw it once

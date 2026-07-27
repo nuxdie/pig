@@ -30,7 +30,7 @@
 .sound__pop{
   position:absolute;right:0;top:calc(100% + 8px);z-index:60;width:210px;
   background:var(--paper-hi);border:1px solid var(--ink);
-  box-shadow:3px 3px 0 rgba(31,36,28,.2);padding:11px 12px;
+  box-shadow:3px 3px 0 var(--shade);padding:11px 12px;
   display:flex;flex-direction:column;gap:9px;
 }
 .sound__row{display:flex;align-items:center;gap:9px}

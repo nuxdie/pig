@@ -14,9 +14,9 @@
 .cardbtn{
   position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;
   padding:26px 9px 13px;text-align:center;font-family:var(--slab);
-  background:#fdfdf7;color:var(--ink);
+  background:var(--card);color:var(--ink);
   border:1px solid var(--ink);border-radius:6px;
-  box-shadow:2px 3px 0 rgba(31,36,28,.22);
+  box-shadow:2px 3px 0 var(--shade);
   cursor:pointer;overflow:hidden;
   transition:transform .14s, box-shadow .14s, background .18s, opacity .4s;
   animation:dealt .45s cubic-bezier(.2,1.2,.4,1) both;
@@ -30,21 +30,21 @@
 @keyframes dealt{0%{opacity:0;transform:translateY(18px) rotate(-4deg)}100%{opacity:1;transform:none}}
 /* A card that has been picked keeps its colour under the cursor — the plain
    hover white used to win on specificity and blank out its own white text. */
-.cardbtn:hover:not(:disabled){transform:translateY(-5px) rotate(-.6deg);box-shadow:3px 8px 0 rgba(31,36,28,.24)}
-.cardbtn:hover:not(:disabled):not(.is-taken):not(.is-chosen):not(.is-drop){background:#fff}
+.cardbtn:hover:not(:disabled){transform:translateY(-5px) rotate(-.6deg);box-shadow:3px 8px 0 var(--shade-hi)}
+.cardbtn:hover:not(:disabled):not(.is-taken):not(.is-chosen):not(.is-drop){background:var(--card-hi)}
 .cardbtn:focus-visible{outline:3px solid var(--stamp);outline-offset:3px}
 .cardbtn:disabled{cursor:default}
 .cardbtn--tin{border-color:var(--tin)}
 .cardbtn--silver{border-color:var(--silver)}
-.cardbtn--gold{border-color:var(--gold);box-shadow:2px 3px 0 rgba(154,122,36,.35)}
+.cardbtn--gold{border-color:var(--gold);box-shadow:2px 3px 0 var(--shade-gold)}
 
 .ptier{
   position:absolute;top:0;left:0;right:0;padding:3px 0 2px;
   font-family:var(--mono);font-size:7.5px;font-weight:700;letter-spacing:.26em;
-  text-transform:uppercase;text-align:center;color:#fff;background:var(--tin);
+  text-transform:uppercase;text-align:center;color:var(--on-solid);background:var(--tin);
 }
 .cardbtn--silver .ptier{background:var(--silver)}
-.cardbtn--gold .ptier{background:linear-gradient(90deg,#8a6d1e,#b9942f 50%,#8a6d1e)}
+.cardbtn--gold .ptier{background:linear-gradient(90deg,var(--gold-deep),var(--gold-lit) 50%,var(--gold-deep))}
 
 .fam{display:block;width:13px;height:13px;color:inherit}
 .fam svg{width:100%;height:100%;display:block}
@@ -58,7 +58,7 @@
   font-family:var(--mono);font-size:7.5px;letter-spacing:.2em;text-transform:uppercase;
   color:var(--pencil);margin-top:-2px;
 }
-.cardbtn.is-taken .pcard__fam{color:rgba(255,255,255,.7)}
+.cardbtn.is-taken .pcard__fam{color:var(--on-solid-soft)}
 
 .draftslot{display:flex;flex-direction:column;align-items:stretch;gap:6px}
 .draftkey{
@@ -90,12 +90,12 @@
 .pcard__stat b.risk{color:var(--red)}
 .pcard__stat b.safe{color:var(--good)}
 
-.cardbtn.is-taken{background:var(--good);border-color:var(--good);color:#fff}
-.cardbtn.is-taken .pcard__desc,.cardbtn.is-taken .pcard__stat{color:rgba(255,255,255,.85)}
-.cardbtn.is-taken .pcard__art,.cardbtn.is-taken .pcorner,.cardbtn.is-taken .pcard__stat b{color:#fff}
-.cardbtn.is-taken::before{border-color:rgba(255,255,255,.45)}
-.cardbtn.is-taken .ptier{background:rgba(0,0,0,.25)}
-.cardbtn.is-taken .pcard__faces i{border-color:rgba(255,255,255,.6)}
-.cardbtn.is-taken .pcard__faces i.one{color:#ffd9d3;border-color:#ffd9d3}
+.cardbtn.is-taken{background:var(--good);border-color:var(--good);color:var(--on-solid)}
+.cardbtn.is-taken .pcard__desc,.cardbtn.is-taken .pcard__stat{color:var(--on-solid-soft)}
+.cardbtn.is-taken .pcard__art,.cardbtn.is-taken .pcorner,.cardbtn.is-taken .pcard__stat b{color:var(--on-solid)}
+.cardbtn.is-taken::before{border-color:var(--on-solid-line)}
+.cardbtn.is-taken .ptier{background:var(--on-solid-wash)}
+.cardbtn.is-taken .pcard__faces i{border-color:var(--on-solid-line)}
+.cardbtn.is-taken .pcard__faces i.one{color:var(--red-lit);border-color:var(--red-lit)}
 .cardbtn.is-dropped{opacity:.2}
 

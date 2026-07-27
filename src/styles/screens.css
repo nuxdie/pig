@@ -42,11 +42,11 @@
    otherwise put the paper background back. */
 .btn.cur__go{
   flex:0 0 auto;padding:18px;font-size:15px;letter-spacing:.18em;
-  background:var(--stamp);border-color:var(--stamp);color:var(--paper-hi);
-  box-shadow:4px 4px 0 #17283c;
+  background:var(--stamp);border-color:var(--stamp);color:var(--on-solid);
+  box-shadow:4px 4px 0 var(--stamp-deep);
 }
-.btn.cur__go:hover:not(:disabled){background:#3a5883}
-.btn.cur__go:active:not(:disabled),.btn.cur__go.is-pressed{box-shadow:0 0 0 #17283c}
+.btn.cur__go:hover:not(:disabled){background:var(--stamp-lit)}
+.btn.cur__go:active:not(:disabled),.btn.cur__go.is-pressed{box-shadow:0 0 0 var(--stamp-deep)}
 
 .intro__rules{margin:0;padding:0;list-style:none;counter-reset:r}
 .intro__rules li{
@@ -75,7 +75,7 @@
 kbd{
   font-family:var(--mono);font-size:10px;font-weight:700;color:var(--ink);
   border:1px solid var(--ink-soft);border-bottom-width:2px;border-radius:3px;
-  padding:2px 5px;background:#fdfdf7;
+  padding:2px 5px;background:var(--card);
 }
 
 /* ---------- the ladder ---------- */
@@ -98,9 +98,9 @@ kbd{
 .kithead{font-family:var(--mono);font-size:9px;color:var(--red);letter-spacing:.04em;border:1px solid var(--red);padding:1px 3px}
 .ladder__purse{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--good);min-width:3.4em;text-align:right}
 .ladder__row.is-done{opacity:.45}
-.ladder__row.is-done .ladder__n{background:var(--good);border-color:var(--good);color:#fff}
+.ladder__row.is-done .ladder__n{background:var(--good);border-color:var(--good);color:var(--on-solid)}
 .ladder__row.is-now{background:var(--paper-hi);box-shadow:inset 3px 0 0 var(--ink)}
-.ladder__row.is-now .ladder__n{background:var(--ink);border-color:var(--ink);color:#fff}
+.ladder__row.is-now .ladder__n{background:var(--ink);border-color:var(--ink);color:var(--paper)}
 .ladder__row.is-locked{opacity:.6}
 
 /* ---------- souvenirs ---------- */
@@ -110,11 +110,11 @@ kbd{
 .cardbtn--pick .pcard__art{width:36px;height:36px}
 .cardbtn--pick .pcard__name{font-size:13px}
 .cardbtn--pick .pcard__desc{font-size:10.5px}
-.cardbtn--pick.is-chosen{background:var(--good);border-color:var(--good);color:#fff}
-.cardbtn--pick.is-chosen .pcard__desc,.cardbtn--pick.is-chosen .pcard__fam{color:rgba(255,255,255,.85)}
-.cardbtn--pick.is-chosen .pcard__art,.cardbtn--pick.is-chosen .pcorner{color:#fff}
-.cardbtn--pick.is-chosen::before{border-color:rgba(255,255,255,.45)}
-.cardbtn--pick.is-chosen .ptier{background:rgba(0,0,0,.25)}
+.cardbtn--pick.is-chosen{background:var(--good);border-color:var(--good);color:var(--on-solid)}
+.cardbtn--pick.is-chosen .pcard__desc,.cardbtn--pick.is-chosen .pcard__fam{color:var(--on-solid-soft)}
+.cardbtn--pick.is-chosen .pcard__art,.cardbtn--pick.is-chosen .pcorner{color:var(--on-solid)}
+.cardbtn--pick.is-chosen::before{border-color:var(--on-solid-line)}
+.cardbtn--pick.is-chosen .ptier{background:var(--on-solid-wash)}
 .cardbtn--pick.is-dim{opacity:.5}
 /* Once a card is picked and the satchel is full, the carried row *is* the
    question, so it says so rather than sitting there greyed out. */
@@ -128,9 +128,9 @@ kbd{
 }
 .swap em{color:var(--pencil);font-style:italic;letter-spacing:0;font-family:var(--slab);font-size:14px}
 .swap__arrow{font-size:19px;color:var(--red);line-height:1}
-.cardbtn--pick.is-drop{background:var(--red);border-color:var(--red);color:#fff}
-.cardbtn--pick.is-drop .pcard__desc,.cardbtn--pick.is-drop .pcard__fam{color:rgba(255,255,255,.85)}
-.cardbtn--pick.is-drop .pcard__art,.cardbtn--pick.is-drop .pcorner{color:#fff}
+.cardbtn--pick.is-drop{background:var(--red);border-color:var(--red);color:var(--on-solid)}
+.cardbtn--pick.is-drop .pcard__desc,.cardbtn--pick.is-drop .pcard__fam{color:var(--on-solid-soft)}
+.cardbtn--pick.is-drop .pcard__art,.cardbtn--pick.is-drop .pcorner{color:var(--on-solid)}
 @media (max-width:560px){
   .satchel--cards{grid-template-columns:1fr}
   .cardbtn--pick{flex-direction:row;align-items:center;text-align:left;padding:9px 10px 9px 20px;gap:9px}
@@ -140,15 +140,15 @@ kbd{
 .pickcard{
   position:relative;width:54px;height:70px;padding:13px 3px 5px;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;justify-content:space-between;
-  background:#fdfdf7;border:1px solid var(--ink);border-radius:4px;overflow:hidden;
-  box-shadow:1px 1px 0 rgba(31,36,28,.22);font-family:var(--slab);
+  background:var(--card);border:1px solid var(--ink);border-radius:4px;overflow:hidden;
+  box-shadow:1px 1px 0 var(--shade);font-family:var(--slab);
   transition:transform .15s, box-shadow .15s, background .18s;
 }
 .pickcard .mini__band{position:absolute;top:0;left:0;right:0;height:4px;background:var(--tin)}
 .pickcard--silver .mini__band{background:var(--silver)}
-.pickcard--gold .mini__band{background:linear-gradient(90deg,#8a6d1e,#b9942f 50%,#8a6d1e)}
+.pickcard--gold .mini__band{background:linear-gradient(90deg,var(--gold-deep),var(--gold-lit) 50%,var(--gold-deep))}
 .pickcard .fam--mini{top:6px;left:5px}
-.pickcard:hover:not(:disabled){transform:translateY(-3px);box-shadow:1px 4px 0 rgba(31,36,28,.22)}
+.pickcard:hover:not(:disabled){transform:translateY(-3px);box-shadow:1px 4px 0 var(--shade)}
 .pickcard:focus-visible{outline:2px solid var(--stamp);outline-offset:2px}
 .pickcard__art{width:24px;height:24px;color:var(--ink)}
 .pickcard__art svg{width:100%;height:100%;display:block}
@@ -160,10 +160,10 @@ kbd{
   font-family:var(--mono);font-size:6.5px;letter-spacing:.03em;
   color:var(--ink-soft);text-transform:uppercase;line-height:1;text-align:center;
 }
-.pickcard.is-chosen{background:var(--good);border-color:var(--good);box-shadow:1px 1px 0 #1d4b34}
-.pickcard.is-chosen .pickcard__art,.pickcard.is-chosen .pickcard__lab,.pickcard.is-chosen .fam{color:#fff}
+.pickcard.is-chosen{background:var(--good);border-color:var(--good);box-shadow:1px 1px 0 var(--good-deep)}
+.pickcard.is-chosen .pickcard__art,.pickcard.is-chosen .pickcard__lab,.pickcard.is-chosen .fam{color:var(--on-solid)}
 .pickcard.is-drop{background:var(--red);border-color:var(--red)}
-.pickcard.is-drop .pickcard__art,.pickcard.is-drop .pickcard__lab,.pickcard.is-drop .fam{color:#fff}
+.pickcard.is-drop .pickcard__art,.pickcard.is-drop .pickcard__lab,.pickcard.is-drop .fam{color:var(--on-solid)}
 .pickcard:disabled{opacity:.34;cursor:default}
 .satchel__empty{
   font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
@@ -173,10 +173,10 @@ kbd{
 .buybtn{
   position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;
   padding:9px 42px 9px 10px;text-align:left;font-family:var(--slab);
-  border:1px solid var(--ink);border-radius:4px;background:#fdfdf7;color:var(--ink);
+  border:1px solid var(--ink);border-radius:4px;background:var(--card);color:var(--ink);
   cursor:pointer;transition:background .15s, transform .12s;
 }
-.buybtn:hover:not(:disabled){background:#fff;transform:translateY(-2px)}
+.buybtn:hover:not(:disabled){background:var(--card-hi);transform:translateY(-2px)}
 .buybtn:focus-visible{outline:2px solid var(--stamp);outline-offset:3px}
 .buybtn:disabled{opacity:.34;cursor:not-allowed}
 .buybtn__lab{font-size:13.5px;font-weight:700;line-height:1.1}
@@ -214,11 +214,11 @@ input[type=range]::-moz-range-thumb{width:10px;height:15px;background:var(--ink)
 input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4px}
 
 /* The hail mary. Dressed as the bad idea it is. */
-.sacrifice{border:1px solid var(--red);background:rgba(168,54,43,.05);padding:14px;align-items:flex-start}
+.sacrifice{border:1px solid var(--red);background:var(--red-wash);padding:14px;align-items:flex-start}
 .sacrifice .cur__head{color:var(--red)}
 .btn.btn--sacrifice{
-  background:var(--red);border-color:var(--red);color:var(--paper-hi);
-  box-shadow:3px 3px 0 #6d211a;
+  background:var(--red);border-color:var(--red);color:var(--on-solid);
+  box-shadow:3px 3px 0 var(--red-deep);
 }
-.btn.btn--sacrifice:hover:not(:disabled){background:#bd4034}
-.btn.btn--sacrifice:active:not(:disabled){box-shadow:0 0 0 #6d211a}
+.btn.btn--sacrifice:hover:not(:disabled){background:var(--red-lit)}
+.btn.btn--sacrifice:active:not(:disabled){box-shadow:0 0 0 var(--red-deep)}
