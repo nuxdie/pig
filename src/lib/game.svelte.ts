@@ -6,6 +6,7 @@ import { card, CARDS } from './cards';
 import { CIRCUIT, GOAL, MARKET, MILES, TIER_OF, WARM_CAP } from './circuit';
 import { bestSlot, DICE } from './dice';
 import { reduced } from './motion';
+import { mulberry32, pick, throwSeed } from './rng';
 import {
   bankValue, chargeIndex, chargeUsable, consumeShield, drawKit, equip, hasCharge,
   loadoutIds, newPlayer, offerFor, partsText, pendingMilestone, usable
@@ -295,9 +296,13 @@ type PinFor = ((rolled: number[]) => Map<number, number>) | null;
 function throwOn(
   which: number[], from: ThrowSide, pinFor: PinFor, done: (slots: number[]) => void
 ): void {
-  if (tray) { tray.throwDice(which, from, pinFor, done); return; }
+  // One draw from the table either way, so a tray-less client and a tray-ful
+  // one stay on the same page of the stream.
+  const seed = throwSeed();
+  if (tray) { tray.throwDice(which, from, pinFor, done, seed); return; }
   const n = S.p[S.turn].dice.length;
-  const slots = S.slot.slice(0, n).map((s, i) => (which.includes(i) ? Math.floor(Math.random() * 6) : s));
+  const R = mulberry32(seed);
+  const slots = S.slot.slice(0, n).map((s, i) => (which.includes(i) ? Math.floor(R() * 6) : s));
   const pin = pinFor ? pinFor(slots) : null;
   pin?.forEach((want, i) => { slots[i] = want; });
   slots.forEach((s, i) => { S.slot[i] = s; });
@@ -336,13 +341,13 @@ function openDraft(who: Side, milestone: Milestone, done: () => void): void {
   S.draft = { who, tier, milestone, offer, chosen: null, done };
 
   if (who === 'them') {
-    let pick = offer[0];
+    let want = offer[0];
     let best = -1e9;
     offer.forEach((c) => {
       const v = machineValue(c, P, S.p.you);
-      if (v > best) { best = v; pick = c; }
+      if (v > best) { best = v; want = c; }
     });
-    setTimeout(() => { chooseDraft(offer.indexOf(pick)); }, 1600);
+    setTimeout(() => { chooseDraft(offer.indexOf(want)); }, 1600);
   }
 }
 
@@ -866,9 +871,9 @@ export function buy(what: MarketItem['id']): void {
     equip(probe, run.souvenirs.concat(run.hired || []));
     const pool = CARDS.filter((c) => c.tier === m.id && usable(c, probe));
     if (!pool.length) return;
-    const pick = pool[Math.floor(Math.random() * pool.length)];
+    const bought = pick(pool);
     run.purse -= m.cost;
-    run.hired = (run.hired || []).concat([pick.id]);
+    run.hired = (run.hired || []).concat([bought.id]);
   }
   play('take');
   saveRun();

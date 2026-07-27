@@ -1,4 +1,5 @@
 import { GOAL, WARM_CAP } from './circuit';
+import { rnd } from './rng';
 import { hasCharge } from './rules';
 import type { Card, Player } from './types';
 
@@ -65,7 +66,9 @@ export function machineWantsRoll(
 
 /** How much the machine wants a given card at draft time. */
 export function machineValue(c: Card, P: Player, opp: Player): number {
-  let v = Math.random() * 0.6;
+  // Off the table stream, not Math.random: a verified run has to be able to
+  // reproduce which card the foe reached for, ties and all.
+  let v = rnd() * 0.6;
   const plain = P.dice.filter((d) => d.id === 'plain').length;
   const behind = opp.score - P.score;
 

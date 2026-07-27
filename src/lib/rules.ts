@@ -1,5 +1,6 @@
 import { card, CARDS } from './cards';
 import { DICE, keepsAOne } from './dice';
+import { pick, shuffle } from './rng';
 import type {
   BankPart, BankValue, Card, CardId, Charge, ChargeId, Milestone, Player, RuleId, Tier
 } from './types';
@@ -73,22 +74,13 @@ export function equip(P: Player, ids: CardId[]): void {
   });
 }
 
-function shuffled<T>(arr: T[]): T[] {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const t = a[i]; a[i] = a[j]; a[j] = t;
-  }
-  return a;
-}
-
 /** Three on offer. Falls back down the tiers when this one is exhausted. */
 export function offerFor(P: Player, tier: Tier): Card[] {
   const order: Tier[] = ['tin', 'silver', 'gold'];
   const idx = order.indexOf(tier);
-  let out = shuffled(CARDS.filter((c) => c.tier === tier && usable(c, P))).slice(0, 3);
+  let out = shuffle(CARDS.filter((c) => c.tier === tier && usable(c, P))).slice(0, 3);
   for (let t = idx - 1; t >= 0 && out.length < 3; t--) {
-    const lower = shuffled(CARDS.filter((c) => c.tier === order[t] && usable(c, P) && out.indexOf(c) < 0));
+    const lower = shuffle(CARDS.filter((c) => c.tier === order[t] && usable(c, P) && out.indexOf(c) < 0));
     out = out.concat(lower.slice(0, 3 - out.length));
   }
   return out;
@@ -97,7 +89,7 @@ export function offerFor(P: Player, tier: Tier): Card[] {
 export function drawKit(P: Player, tier: Tier): CardId | null {
   const pool = CARDS.filter((c) => c.tier === tier && usable(c, P));
   if (!pool.length) return null;
-  return pool[Math.floor(Math.random() * pool.length)].id;
+  return pick(pool).id;
 }
 
 /** Every card id currently showing in a loadout, for the spoils screen. */

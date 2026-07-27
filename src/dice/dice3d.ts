@@ -126,12 +126,17 @@ export class Tray {
    * slots and may return a map of die index → slot that must come up instead
    * (that is how Transmute turns 1s to gold); returning null accepts the roll
    * as it fell. `cb` receives the slot every die finally shows.
+   *
+   * `seed` comes from the table stream, so the same run throws the same dice
+   * twice — once here and once wherever it is being checked. Left out, the
+   * throw takes its own entropy and is nobody's business but this table's.
    */
   throwDice(
     which: number[],
     from: ThrowSide,
     pinFor: ((rolled: number[]) => Map<number, number> | null) | null,
-    cb: (slots: number[]) => void
+    cb: (slots: number[]) => void,
+    seed?: number
   ): void {
     const count = this.dice.length;
     if (!count) { cb([]); return; }
@@ -150,10 +155,10 @@ export class Tray {
       });
 
       // Roll freely first — that sample *is* the roll.
-      let traj = solveThrow(count, which, resting, new Map(), from);
+      let traj = solveThrow(count, which, resting, new Map(), from, seed);
       const pin = pinFor ? pinFor(traj.slots.slice()) : null;
       if (pin && pin.size) {
-        traj = solveThrow(count, which, resting, pin, from);
+        traj = solveThrow(count, which, resting, pin, from, seed);
         // A pinned die the budget could not reach is eased into place as it
         // settles; ~1/216 and only ever under Transmute.
         pin.forEach((want, i) => {
