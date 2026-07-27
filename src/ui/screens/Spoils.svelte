@@ -5,6 +5,17 @@
   import { playOn, showScreen, spoilsOffer, walkAway } from '../../lib/game.svelte';
   import { RUN } from '../../lib/run.svelte';
   import CardFace from '../CardFace.svelte';
+  import Mini from '../Mini.svelte';
+
+  /* Two taps is the whole screen: pick a card, play on. Everything here is
+     laid out for that, and anything that is not part of it has been made
+     small or made conditional.
+
+     The satchel used to sit here as a second wall of full-size cards on every
+     single rung, which put the button you actually came for below the fold.
+     It is a row of minis now, and only opens back up into cards on the one
+     occasion it is a decision — a full satchel, with something chosen, where
+     taking costs you a trade. */
 
   const run = $derived(RUN());
   const opp = $derived(CIRCUIT[run.rung]);
@@ -19,8 +30,6 @@
   let skip = $state(false);
 
   const full = $derived(run.souvenirs.length >= SATCHEL_MAX);
-  /* A full satchel does not mean you cannot take anything — it means taking
-     costs you something. Say that, in those words, and show the trade. */
   const trading = $derived(full && !skip && chosen !== null);
 
   const ready = $derived.by(() => {
@@ -34,17 +43,13 @@
   const taking = $derived(chosen === null ? null : card(offer[chosen])!);
   const leaving = $derived(dropping === null ? null : card(run.souvenirs[dropping])!);
 
-  const prompt = $derived.by(() => {
-    if (!offer.length) return 'Nothing new to keep from this one.';
-    if (skip) return 'Leaving the table empty-handed.';
-    if (chosen === null) {
-      return full
-        ? `Your satchel is full at ${SATCHEL_MAX}. Pick what you want anyway — you will trade for it.`
-        : 'Choose a card to keep before you move on.';
-    }
-    if (full && dropping === null) return `Now pick what ${taking!.name} replaces.`;
-    return `Keeping ${taking!.name}.`;
-  });
+  /* Only ever shown while something is still owed. Once the screen is ready
+     the buttons say the rest themselves. */
+  const owed = $derived(
+    chosen === null
+      ? 'Choose a card to keep, or say you want none.'
+      : `Now pick what ${taking!.name} replaces.`
+  );
 
   function commit() {
     if (skip || chosen === null) return;
@@ -82,76 +87,97 @@
 <h1 class="cur__title win">{last ? 'The Devil pays' : 'You take it'}</h1>
 
 <p class="cur__lede">
-  {opp.name} is beaten. <b class="good">+{opp.purse}</b> to the purse,
-  which now stands at <b class="good">{run.purse}</b>.
-  {last ? ' There is no one left to play.' : ' Lose the next and all of it goes.'}
+  {opp.name} is beaten. <b class="good">+{opp.purse}</b> to the purse —
+  <b class="good">{run.purse}</b> in hand.
 </p>
 
-{#if offer.length}
+{#if offer.length && !trading}
   <div class="cur__block">
-    <p class="cur__head">Keep one from the match</p>
+    <div class="cur__bar">
+      <p class="cur__head">Keep one from the match</p>
+      <button
+        class="linkbtn"
+        onclick={() => { skip = !skip; if (skip) { chosen = null; dropping = null; } }}
+      >{skip ? 'let me choose' : 'or keep nothing'}</button>
+    </div>
 
     <div class="satchel satchel--cards">
       {#each offer as id, i (id)}
         <button
           class="cardbtn cardbtn--{card(id)!.cls} cardbtn--{card(id)!.tier} cardbtn--pick"
           class:is-chosen={chosen === i}
-          class:is-dim={chosen !== null && chosen !== i}
+          class:is-dim={(chosen !== null && chosen !== i) || skip}
           onclick={() => take(i)}
         >
           <CardFace c={card(id)!} />
         </button>
       {/each}
     </div>
-
-    <button class="linkbtn" onclick={() => { skip = !skip; if (skip) { chosen = null; dropping = null; } }}>
-      {skip ? 'Actually, let me choose' : 'Keep nothing from this match'}
-    </button>
   </div>
 {/if}
 
-<div class="cur__block">
-  <p class="cur__head">
-    Satchel — {run.souvenirs.length}/{SATCHEL_MAX}{#if full && !skip}, and full{/if}
-  </p>
+{#if trading}
+  <div class="cur__block">
+    <div class="cur__bar">
+      <p class="cur__head">Leave one behind</p>
+      <button class="linkbtn" onclick={() => { chosen = null; dropping = null; }}>
+        keep something else
+      </button>
+    </div>
 
-  {#if trading}
     <p class="swap">
       <b>{taking!.name}</b>
       <span class="swap__arrow" aria-label="in exchange for">⇄</span>
       {#if leaving}<b>{leaving.name}</b>{:else}<em>pick one to leave behind</em>{/if}
     </p>
-  {/if}
 
-  {#if run.souvenirs.length}
-    <div class="satchel satchel--cards" class:is-picking={trading}>
+    <div class="satchel satchel--cards is-picking">
       {#each run.souvenirs as id, i (i)}
         <button
           class="cardbtn cardbtn--{card(id)!.cls} cardbtn--{card(id)!.tier} cardbtn--pick"
           class:is-drop={dropping === i}
-          disabled={!trading}
           onclick={() => drop(i)}
         >
           <CardFace c={card(id)!} />
         </button>
       {/each}
     </div>
+  </div>
+{:else if run.souvenirs.length}
+  <div class="cur__block">
+    <div class="cur__bar">
+      <p class="cur__head">Carrying</p>
+      <span class="cur__count">
+        {run.souvenirs.length}/{SATCHEL_MAX}{#if full}, full{/if}
+      </span>
+    </div>
+    <div class="satchel">
+      {#each run.souvenirs as id, i (i)}<Mini c={card(id)!} withTier />{/each}
+    </div>
+  </div>
+{/if}
+
+<div class="cur__foot">
+  <div class="cur__row">
+    {#if last}
+      <button class="btn cur__go" disabled={!ready} onclick={onWalk}>Walk away with {run.purse}</button>
+    {:else}
+      <button class="btn cur__go" disabled={!ready} onclick={onPlayOn}>
+        On to {CIRCUIT[run.rung + 1].name}
+      </button>
+      <button class="btn" disabled={!ready} onclick={onWalk}>Walk away with {run.purse}</button>
+    {/if}
+  </div>
+
+  {#if ready}
+    <p class="cur__why">
+      {#if last}
+        There is no one left to play. The purse is yours.
+      {:else}
+        Play on and lose, and the whole {run.purse} goes with it. Walk, and it is yours.
+      {/if}
+    </p>
   {:else}
-    <p class="satchel__empty">nothing yet</p>
+    <p class="cur__prompt">{owed}</p>
   {/if}
 </div>
-
-<p class="cur__prompt" class:is-ok={ready}>{prompt}</p>
-
-<div class="cur__row">
-  {#if last}
-    <button class="btn cur__go" disabled={!ready} onclick={onWalk}>Walk away with {run.purse}</button>
-  {:else}
-    <button class="btn cur__go" disabled={!ready} onclick={onPlayOn}>
-      On to {CIRCUIT[run.rung + 1].name}
-    </button>
-    <button class="btn" disabled={!ready} onclick={onWalk}>Walk away with {run.purse}</button>
-  {/if}
-</div>
-
-<p class="cur__note">The run is saved after every rung, so you can close this and come back.</p>

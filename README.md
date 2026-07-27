@@ -40,8 +40,8 @@ src/
     engine.ts          context, reverb, delay, tone/bell/knock primitives
     sfx.ts             one signature per card, built from the playing chord
     instruments.ts     five voices: pad, bass, lead, arp, bell
-    song.ts            written patterns, in scale degrees, and an order
-    music.ts           the tracker: steps the song, mixes it against play
+    song.ts            seven written themes, one per opponent, in scale degrees
+    music.ts           the tracker: steps the foe's song, mixes it against play
   dice/                the tray — WebGL and rigid-body physics
     solver.ts          Rapier world, the throw, trajectory recording
     scene.ts           renderer, camera fitted to the tray, lights, floor
@@ -57,15 +57,16 @@ src/
     Bay.svelte         tray, the line, controls, charges, verdict, keyboard
     Feed.svelte        scoring events, passing by
     Dev.svelte         devmode: stages, cheats, every card, every die
-    Draft.svelte       the three cards on offer
+    Draft.svelte       the three cards on offer, over everything else
     Curtain.svelte     every screen that is not the board
-    Theme.svelte       light paper, dark paper, or whatever the system says
+    Settings.svelte    paper, volumes and full screen, behind one word
+    press.ts           the buttons a turn runs through, acting on the way down
     screens/           intro, circuit, market, spoils, walked, ruin
   styles/              the original stylesheet, split by concern
     tokens.css         both palettes; nothing else may name a colour
 ```
 
-### Five deliberate choices
+### Six deliberate choices
 
 **The dice are the random number generator.** A roll is one rigid-body
 simulation, and whichever face comes up *is* what was rolled — nothing picks a
@@ -118,6 +119,16 @@ time you next need the space. Nothing that reports a number reports it twice.
 with `{@html}`, and Svelte's style scoping would silently drop any rule that
 matches them. The CSS is split by concern into `styles/` and imported from
 `main.ts` in cascade order.
+
+**Seven opponents, seven tunes.** The score is a tracker, not a generator:
+`song.ts` holds written patterns and `music.ts` steps through them. Each foe
+has a song of their own — their own mode, harmony and melody, not the same
+tune transposed — from the publican's fidgety dorian to the devil's phrygian
+dominant, slow and an octave down. What they share is the vocabulary: five
+voices, a pad that is always there and never in the way, and a mix that is a
+read-out of the table rather than a fade — the bass pulls back when the machine
+has the pen, the arp comes up as the line grows, the bell only arrives when the
+match is close.
 
 **Two sheets, one vocabulary.** Every colour is a token in `tokens.css`, named
 for the job it does rather than the colour it is — a surface, a rule, an

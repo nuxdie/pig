@@ -29,8 +29,30 @@
   border-bottom:1px solid var(--ink);padding-bottom:5px;
 }
 .cur__block{display:flex;flex-direction:column;gap:9px}
+/* a section head with somewhere to put the one thing that qualifies it —
+   a count, or the way out of the choice underneath */
+.cur__bar{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  border-bottom:1px solid var(--ink);padding-bottom:5px;
+}
+.cur__bar .cur__head{border:0;padding:0;flex:0 1 auto}
+.cur__count{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--pencil);white-space:nowrap;flex:0 0 auto;
+}
 .cur__row{display:flex;gap:9px;flex-wrap:wrap}
 .cur__row .btn{flex:1 1 190px}
+/* The thing you came here to press, kept in reach however long the offer
+   above it runs — a satchel of six cards used to put it below the fold. */
+.cur__foot{
+  position:sticky;bottom:0;z-index:2;
+  display:flex;flex-direction:column;gap:7px;
+  padding:11px 0 6px;background:var(--paper);
+  border-top:1px solid var(--rule-soft);
+}
+/* what the buttons above cost, in one line, rather than buried in the lede */
+.cur__why{margin:0;font-size:12.5px;line-height:1.45;color:var(--pencil);font-style:italic;text-align:center}
+.cur__foot .cur__prompt{text-align:center}
 .cur__note{margin:0;font-size:12.5px;line-height:1.45;color:var(--pencil);font-style:italic}
 .cur__prompt{
   margin:0;font-family:var(--mono);font-size:10px;letter-spacing:.14em;

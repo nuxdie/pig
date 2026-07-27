@@ -1,7 +1,7 @@
 import { hasRun, runState } from '../lib/run.svelte';
 import { A, audio, PROG, type Chord } from './engine';
 import { playNote, type Inst } from './instruments';
-import { barsOf, hz, ORDER, PATTERNS, R } from './song';
+import { barsOf, hz, R, SONGS, type Song } from './song';
 
 /* =====================================================================
    THE SCORE
@@ -14,27 +14,19 @@ import { barsOf, hz, ORDER, PATTERNS, R } from './song';
    line grows, the bell only appears when the match is close, and every
    filter opens with the tension. Nothing is faded in by a timer — the
    arrangement is a read-out of the game.
+
+   Which song is being read out is decided by who is sitting opposite:
+   one per rung, each with its own mode and its own tune.
    ===================================================================== */
 
-/** Every foe: their key, their tempo, and how bright their room is. */
-interface Foe { semi: number; bpm: number; air: number; }
-
-const FOES: Foe[] = [
-  { semi:  0, bpm: 84, air: 1.00 },  // Publican    — plain A minor
-  { semi:  2, bpm: 88, air: 0.96 },  // Wheelwright
-  { semi: -3, bpm: 80, air: 1.04 },  // Reeve
-  { semi:  5, bpm: 92, air: 0.92 },  // Alchemist
-  { semi: -1, bpm: 78, air: 1.06 },  // Abbot
-  { semi:  3, bpm: 96, air: 0.86 },  // Executioner
-  { semi: -5, bpm: 72, air: 1.14 }   // Devil       — low and slow
-];
-
-export function foe(): Foe {
-  return FOES[(hasRun() && runState.run!.rung) || 0];
+/** Whose theme is playing. Changes only between matches. */
+export function song(): Song {
+  return SONGS[(hasRun() && runState.run!.rung) || 0];
 }
 
+/** Into the current foe's key. The effects tune themselves with this. */
 export function shift(f: number): number {
-  return f * Math.pow(2, foe().semi / 12);
+  return f * Math.pow(2, song().semi / 12);
 }
 
 /* ---------------- what the table is doing ---------------- */
@@ -74,7 +66,7 @@ function remix(): void {
   mix.lead = t.theirs ? 0.3 : 0.55 + 0.45 * pot;
   mix.arp = pot * (t.theirs ? 0.45 : 1);
   mix.bell = heat > 0.5 ? (heat - 0.5) * 2 : 0;
-  open = (0.22 + 0.78 * heat) * foe().air;
+  open = (0.22 + 0.78 * heat) * song().air;
 }
 
 /* ---------------- the compatibility seam ----------------
@@ -112,9 +104,6 @@ let orderAt = 0;
 /** Eighths elapsed inside the current pattern. */
 let inPattern = 0;
 
-/** A little push and pull, so the eighths are not a grid. */
-const SWING = 0.055;
-
 function chordFor(chord: number[], deg: number): number {
   const i = ((deg % chord.length) + chord.length) % chord.length;
   const up = Math.floor(deg / chord.length);
@@ -122,20 +111,23 @@ function chordFor(chord: number[], deg: number): number {
 }
 
 function stepAt(t: number): void {
-  const pattern = PATTERNS[ORDER[orderAt % ORDER.length]];
+  const s = song();
+  const pattern = s.patterns[s.order[orderAt % s.order.length]];
   const bars = barsOf(pattern);
   const bar = Math.floor(inPattern / 8) % bars;
   const chord = pattern.chords[bar];
   const eighth = 60 / A.bpm / 2;
-  const at = t + (inPattern % 2 ? eighth * SWING : 0);
+  // a little push and pull, so the eighths are not a grid — and how much
+  // of it there is belongs to the foe as much as the tempo does
+  const at = t + (inPattern % 2 ? eighth * s.swing : 0);
 
   if (inPattern === 0) remix();
 
   if (inPattern % 8 === 0) {
     // publish the chord in hertz, for the effects to tune themselves to
     A.chord = {
-      n: [0, 1, 2, 3].map((k) => shift(hz(chordFor(chord, k) + 7))),
-      b: shift(hz(chord[0]))
+      n: [0, 1, 2, 3].map((k) => shift(hz(chordFor(chord, k) + 7, s.scale))),
+      b: shift(hz(chord[0], s.scale))
     };
   }
 
@@ -146,7 +138,7 @@ function stepAt(t: number): void {
     if (level <= 0.02) continue;
     const deg = (tr.chordal ? chordFor(chord, raw) : raw) + (tr.up || 0);
     playNote(tr.inst, {
-      f: shift(hz(deg)),
+      f: shift(hz(deg, s.scale)),
       t: at,
       dur: tr.len * eighth,
       vel: tr.vel * level,
@@ -167,8 +159,9 @@ function scheduler(): void {
   }
 }
 
+/** A new foe, a new song: called when a match starts. */
 export function retune(): void {
-  A.bpm = foe().bpm;
+  A.bpm = song().bpm;
   if (A.delay) A.delay.delayTime.setTargetAtTime(60 / A.bpm * 0.75, A.ctx!.currentTime, 0.4);
   orderAt = 0;
   inPattern = 0;
@@ -178,7 +171,7 @@ export function retune(): void {
 export function startMusic(): void {
   if (A.playing || A.musLevel <= 0) return;
   const c = audio(); if (!c) return;
-  A.bpm = foe().bpm;
+  A.bpm = song().bpm;
   A.playing = true;
   A.next = c.currentTime + 0.15;
   remix();

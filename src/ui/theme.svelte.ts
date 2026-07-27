@@ -41,11 +41,6 @@ export function setTheme(pick: Theme): void {
   applyTheme();
 }
 
-/** Light → dark → follow the system → light. */
-export function cycleTheme(): void {
-  setTheme(theme.pick === 'light' ? 'dark' : theme.pick === 'dark' ? 'auto' : 'light');
-}
-
 /** Start the theme, and keep following the system for as long as it is asked to. */
 export function startTheme(): void {
   applyTheme();

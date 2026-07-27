@@ -89,7 +89,6 @@ export const S: GameState = $state(blank());
 export const ui = {
   focusRoll: () => {},
   focusAgain: () => {},
-  scrollToDraft: () => {},
   scrollToVerdict: () => {}
 };
 
@@ -335,7 +334,6 @@ function openDraft(who: Side, milestone: Milestone, done: () => void): void {
   play('milestone');
   stampIt(who, String(milestone), 'blue');
   S.draft = { who, tier, milestone, offer, chosen: null, done };
-  ui.scrollToDraft();
 
   if (who === 'them') {
     let pick = offer[0];

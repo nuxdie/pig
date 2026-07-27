@@ -25,13 +25,16 @@
   const ghost = $derived(Math.min(100 - fill, pending ? pending.total : 0));
 
   const hand = $derived.by(() => {
-    const out: Array<{ key: string; id: string; spent: boolean }> = [];
+    const out: Array<{ key: string; id: string }> = [];
     // chalk arrives via Third die and has no card of its own
-    P.dice.forEach((d, i) => { if (card(d.id)) out.push({ key: 'd' + i, id: d.id, spent: false }); });
+    P.dice.forEach((d, i) => { if (card(d.id)) out.push({ key: 'd' + i, id: d.id }); });
     (Object.keys(P.rules) as RuleId[]).forEach((r) => {
-      if (P.rules[r] && card(r)) out.push({ key: 'r' + r, id: r, spent: false });
+      if (P.rules[r] && card(r)) out.push({ key: 'r' + r, id: r });
     });
-    P.charges.forEach((ch, i) => { if (card(ch.id)) out.push({ key: 'c' + i, id: ch.id, spent: ch.spent }); });
+    // A charge drops out of the hand the moment it is played. What is left is
+    // what can still be reached for, which is the only question the hand is
+    // ever asked — a spent card sitting there crossed out answered nothing.
+    P.charges.forEach((ch, i) => { if (!ch.spent && card(ch.id)) out.push({ key: 'c' + i, id: ch.id }); });
     return out;
   });
 
@@ -52,7 +55,8 @@
   $effect(() => {
     const p = S.pulse[side];
     if (!p.id || p.n === 0 || !handEl) return;
-    replay(handEl.querySelector(`[data-card="${p.id}"]`), 'is-flare');
+    // a card on its way out is already saying it did something
+    replay(handEl.querySelector(`[data-card="${p.id}"]:not(.is-leaving)`), 'is-flare');
   });
 </script>
 
@@ -79,7 +83,7 @@
 
   <div class="side__hand" bind:this={handEl}>
     {#each hand as item (item.key)}
-      <Mini c={card(item.id)!} spent={item.spent} withTier />
+      <Mini c={card(item.id)!} withTier leaves />
     {/each}
   </div>
 

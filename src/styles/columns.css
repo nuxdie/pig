@@ -56,11 +56,6 @@
 .mini--charge{border-color:var(--stamp)}
 .mini--charge .mini__art,.mini--charge .fam{color:var(--stamp)}
 .mini--charge::after{border-style:dashed}
-.mini--spent{opacity:.34}
-.mini--spent::after{
-  content:"";position:absolute;inset:-1px;pointer-events:none;
-  background:linear-gradient(to bottom right, transparent 46%, var(--red) 46% 54%, transparent 54%);
-}
 .mini--none{
   width:auto;height:auto;padding:6px 9px;border-style:dotted;border-color:var(--pencil);
   opacity:.55;box-shadow:none;transform:none !important;cursor:default;justify-content:center;

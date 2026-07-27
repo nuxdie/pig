@@ -9,11 +9,11 @@
   import { chargeUsable } from '../lib/rules';
   import { RUN } from '../lib/run.svelte';
   import type { ChargeId } from '../lib/types';
-  import Draft from './Draft.svelte';
   import Feed from './Feed.svelte';
   import Icon from './Icon.svelte';
   import Tray from './Tray.svelte';
   import { toggleMute } from './mixer.svelte';
+  import { press } from './press';
 
   let btnRoll: HTMLButtonElement;
   let btnBank: HTMLButtonElement;
@@ -148,8 +148,6 @@
     <button class="btn btn--again" bind:this={btnAgain} onclick={again}>Continue</button>
   </div>
 
-  <Draft />
-
   <Tray />
 
   <div class="flares" aria-hidden="true">
@@ -175,11 +173,11 @@
 
   <div class="controls">
     <button
-      class="btn" bind:this={btnRoll} disabled={!mine} onclick={doRoll}
+      class="btn" bind:this={btnRoll} disabled={!mine} use:press={doRoll}
       onmouseenter={() => { if (mine && !reduced) nudgeTray(true); }}
       onmouseleave={() => nudgeTray(false)}
     >Roll<small>space</small></button>
-    <button class="btn btn--bank" bind:this={btnBank} disabled={!mine || S.line === 0} onclick={doBank}>
+    <button class="btn btn--bank" bind:this={btnBank} disabled={!mine || S.line === 0} use:press={doBank}>
       Bank<small>b</small>
     </button>
   </div>
@@ -190,7 +188,7 @@
         class="btn btn--charge"
         data-charge-id={x.ch.id}
         disabled={!(chargeUsable(S.p.you, x.ch, S.line, S.p.them.score) && !S.busy)}
-        onclick={() => useCharge(x.i)}
+        use:press={() => useCharge(x.i)}
       >{x.c.name}<small>{x.c.key || ''}</small></button>
     {/each}
   </div>

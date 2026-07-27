@@ -26,20 +26,35 @@
 .linkbtn:hover{color:var(--stamp);border-color:var(--stamp)}
 .linkbtn:focus-visible{outline:2px solid var(--stamp);outline-offset:3px}
 
-.sound{position:relative}
-.sound__pop{
-  position:absolute;right:0;top:calc(100% + 8px);z-index:60;width:210px;
+/* ---------- settings ----------
+   One drawer for every preference in the game. It used to be a button each
+   in the top bar, which on a phone wrapped and stole a line from the board. */
+.settings{position:relative}
+.settings__flag{color:var(--pencil)}
+.settings__pop{
+  position:absolute;right:0;top:calc(100% + 8px);z-index:60;width:236px;
   background:var(--paper-hi);border:1px solid var(--ink);
   box-shadow:3px 3px 0 var(--shade);padding:11px 12px;
   display:flex;flex-direction:column;gap:9px;
 }
-.sound__row{display:flex;align-items:center;gap:9px}
-.sound__row label{
+.settings__row{display:flex;align-items:center;gap:9px}
+.settings__row--wide{padding-top:2px;border-top:1px solid var(--rule-soft)}
+.settings__lab{
   font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
   color:var(--ink-soft);width:52px;flex:0 0 auto;
 }
-.sound__row input[type=range]{flex:1 1 auto;width:100%;accent-color:var(--stamp)}
-.sound__hint{margin:0;font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--pencil)}
-.sound__hint kbd{
+.settings__row input[type=range]{flex:1 1 auto;width:100%;accent-color:var(--stamp)}
+.settings__seg{display:flex;flex:1 1 auto;border:1px solid var(--rule)}
+.settings__opt{
+  flex:1 1 0;font:inherit;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+  text-transform:uppercase;padding:4px 0;cursor:pointer;
+  background:var(--paper);color:var(--ink-soft);border:0;border-left:1px solid var(--rule);
+}
+.settings__opt:first-child{border-left:0}
+.settings__opt:hover{color:var(--ink)}
+.settings__opt.is-on{background:var(--ink);color:var(--paper)}
+.settings__opt:focus-visible{outline:2px solid var(--stamp);outline-offset:-2px}
+.settings__hint{margin:0;font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--pencil)}
+.settings__hint kbd{
   font:inherit;border:1px solid var(--rule);padding:0 3px;background:var(--paper);
 }

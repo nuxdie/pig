@@ -1,6 +1,20 @@
-/* ---------- draft ---------- */
-.draft{display:none;width:100%;flex-direction:column;align-items:center;gap:10px;animation:inked .4s ease-out}
+/* ---------- draft ----------
+   A sheet over everything, not a row inside the bay: nothing continues until
+   a card is taken, so there is no reason for the dice to be on screen arguing
+   for the same space. `margin:auto` on the box rather than `align-items`, so
+   that three stacked cards on a phone stay reachable when they overflow. */
+.draft{
+  position:fixed;inset:0;z-index:58;display:none;overflow-y:auto;
+  padding:clamp(14px,4vh,44px) clamp(12px,3vw,26px);
+  background:var(--scrim);backdrop-filter:blur(3px);
+}
 .draft.is-on{display:flex}
+.draft__box{
+  width:100%;max-width:780px;margin:auto;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  animation:draftIn .34s cubic-bezier(.2,.9,.3,1) both;
+}
+@keyframes draftIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 .draft__head{
   margin:0;text-align:center;font-family:var(--mono);font-size:11px;
   letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--good);
