@@ -54,7 +54,8 @@ src/
   ui/                  Svelte components
     App.svelte         top bar + board
     Scoreline.svelte   one player's balance, meter, hand, stamp
-    Bay.svelte         tray, the line, controls, charges, verdict, keyboard
+    Bay.svelte         tray, the line, controls, verdict, keyboard
+    Hand.svelte        your playable cards, dealt to the near edge of the table
     Feed.svelte        scoring events, passing by
     Dev.svelte         devmode: stages, cheats, every card, every die
     Draft.svelte       the three cards on offer, over everything else
@@ -113,7 +114,10 @@ table, theirs — and two of them were history. Almost nobody reads a ledger,
 and it was costing two thirds of the screen. What is left is what a turn
 actually needs: two balances, two meters, the dice, the line, and the two
 buttons. The ledger is a feed now, over the corner of the table, gone by the
-time you next need the space. Nothing that reports a number reports it twice.
+time you next need the space. Nothing that reports a number reports it twice —
+and, for the same reason, nothing that shows a card shows it twice: the
+scoreline holds the dice and standing rules, which are only ever status, and
+everything you can actually play is dealt to your hand at the near edge.
 
 **The stylesheets are global, not scoped.** Card faces and icons are injected
 with `{@html}`, and Svelte's style scoping would silently drop any rule that
@@ -140,7 +144,8 @@ is allowed to write a literal colour. `index.html` stamps the chosen sheet on
 ## Playing
 
 Space rolls, `B` banks, `1`/`2`/`3` take a card at a draft, `M` mutes.
-Charges have their own keys, printed on their buttons. The word in the top bar
+Charges are the cards in the hand at the bottom; each carries its own key,
+printed on it. The word in the top bar
 between full screen and sound turns the paper light, dark, or over to the
 system setting.
 

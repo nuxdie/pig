@@ -3,13 +3,13 @@
   import { CIRCUIT } from '../lib/circuit';
   import {
     bankOf, chooseDraft, doBank, doRoll, enterRuin, enterSpoils, nudgeTray,
-    S, tryCharge, ui, useCharge
+    S, tryCharge, ui
   } from '../lib/game.svelte';
   import { bringIntoView, reduced, replay } from '../lib/motion';
-  import { chargeUsable } from '../lib/rules';
   import { RUN } from '../lib/run.svelte';
   import type { ChargeId } from '../lib/types';
   import Feed from './Feed.svelte';
+  import Hand from './Hand.svelte';
   import Icon from './Icon.svelte';
   import Tray from './Tray.svelte';
   import { toggleMute } from './mixer.svelte';
@@ -20,7 +20,7 @@
   let btnAgain: HTMLButtonElement;
   let verdictEl: HTMLDivElement;
   let totalEl: HTMLDivElement;
-  let chargesEl: HTMLDivElement;
+  let handEl: ReturnType<typeof Hand>;
 
   ui.focusRoll = () => btnRoll?.focus();
   ui.focusAgain = () => btnAgain?.focus();
@@ -38,15 +38,6 @@
       ? 'Unbanked. Two 1s wipe everything.'
       : 'Unbanked. A single 1 wipes it.';
   });
-
-  /* The charges the player can reach for. Shield is held, never played. */
-  const charges = $derived(
-    S.turn === 'you' && !S.over && !S.draft
-      ? S.p.you.charges
-          .map((ch, i) => ({ ch, i, c: card(ch.id)! }))
-          .filter((x) => !x.ch.spent && x.ch.id !== 'shield')
-      : []
-  );
 
   $effect(() => {
     if (S.fx.bump > 0 && totalEl) replay(totalEl, 'is-bump');
@@ -114,7 +105,7 @@
     for (const [c, k, n, id] of CHARGE_KEYS) {
       if (is(c, k, n)) {
         e.preventDefault();
-        tap(chargesEl?.querySelector<HTMLElement>(`[data-charge-id="${id}"]:not(:disabled)`));
+        tap(handEl?.el().querySelector<HTMLElement>(`[data-charge-id="${id}"]:not(:disabled)`));
         tryCharge(id);
         return;
       }
@@ -182,16 +173,7 @@
     </button>
   </div>
 
-  <div class="charges" bind:this={chargesEl}>
-    {#each charges as x (x.i)}
-      <button
-        class="btn btn--charge"
-        data-charge-id={x.ch.id}
-        disabled={!(chargeUsable(S.p.you, x.ch, S.line, S.p.them.score) && !S.busy)}
-        use:press={() => useCharge(x.i)}
-      >{x.c.name}<small>{x.c.key || ''}</small></button>
-    {/each}
-  </div>
-
   <p class="log" role="status" aria-live="polite">{@html S.log}</p>
+
+  <Hand bind:this={handEl} />
 </section>

@@ -62,7 +62,7 @@ export function faceUv(slot: number, a: number, b: number): [number, number] {
 /* ----------------------------- the palette ----------------------------- */
 
 type PipStyle = 'round' | 'rough' | 'ring';
-type Emblem = 'devil' | 'crown' | 'cross' | 'hallmark' | 'chisel' | 'gouge' | 'rosette' | 'scrawl';
+type Emblem = 'devil' | 'crown' | 'cross' | 'hallmark' | 'hone' | 'gouge' | 'rosette' | 'scrawl';
 type Surface = 'grind' | 'craze' | 'cast' | 'grubby' | 'scorch' | 'dust' | 'gild';
 
 interface Art {
@@ -91,6 +91,14 @@ interface Art {
   metal: number;
   /** Embers. Only the devil has any. */
   glow: string | null;
+  /**
+   * How hot the plain pips burn. Without this the devil's pips were pale
+   * paint at the bottom of a deep pit on a near-black face, and the occlusion
+   * took what little contrast they had — they have to make their own light to
+   * be read at all. Kept under the emblem's, so the face looking back at you
+   * is still the hottest thing on the die.
+   */
+  ember?: number;
 }
 
 const BONE: Art = {
@@ -107,7 +115,7 @@ const ART: Record<DieId, Art> = {
   whet: {
     base: '#979a8c', grain: '#7a7d71', edge: '#bcbfb4',
     pip: '#1f231d', pipOne: '#8d3225',
-    style: 'round', emblem: 'chisel', surface: 'grind', halo: null,
+    style: 'round', emblem: 'hone', surface: 'grind', halo: null,
     wear: 0.6, rough: [0.92, 0.5], cut: [1, 0], metal: 1, glow: null
   },
 
@@ -131,9 +139,9 @@ const ART: Record<DieId, Art> = {
   // Five sixes and a single 1 — and the 1 has a face on it.
   devil: {
     base: '#4d1a14', grain: '#2d0d0b', edge: '#6d2a1e',
-    pip: '#e8cbc2', pipOne: '#1a0806',
+    pip: '#ffc7a4', pipOne: '#1a0806',
     style: 'round', emblem: 'devil', surface: 'scorch', halo: null,
-    wear: 0.55, rough: [0.86, 0.5], cut: [0.9, 0], metal: 1, glow: '#ff5a1e'
+    wear: 0.55, rough: [0.86, 0.5], cut: [0.9, 0], metal: 1, glow: '#ff5a1e', ember: 0.8
   },
 
   // Drawn on rather than cut in: shallow chalk rings and dust everywhere.
@@ -410,14 +418,35 @@ function hallmarkMarks(x: number, y: number, r: number): Mark[] {
   ];
 }
 
-/** A gash where the 1 should be, as if the die had been struck with a blade. */
-function chiselMarks(x: number, y: number, r: number): Mark[] {
-  const g = pen(x, y, r);
-  g.m(-0.95, 0.46);
-  g.q(-0.1, -0.2, 0.92, -0.52);
-  g.q(0.2, 0.14, -0.95, 0.46);
-  g.close();
-  return [{ path: g.P, depth: 1 }];
+/**
+ * The pip honed to an edge. It used to be a gash across the face, which read
+ * as damage rather than as a sharpening — a die that had been hit with
+ * something, not one that had been taken to a stone.
+ *
+ * So it is a blade seen end-on instead: a lozenge cut deep, with the bevel
+ * left standing bright down the middle of it — a shallow cut inside a deep
+ * one comes back up as a ridge, because a later mark overwrites the height
+ * an earlier one wrote. The stone's own marks are already all over the face
+ * as `grind`, so the mark does not repeat them. Still one mark where one pip
+ * was, so the face is still countable.
+ */
+function honeMarks(x: number, y: number, r: number): Mark[] {
+  const blade = pen(x, y, r);
+  blade.m(0, -1.02);                                 // the point
+  blade.b(0.42, -0.56, 0.58, -0.04, 0.40, 0.50);     // out, and swelling
+  blade.q(0.21, 0.86, 0, 1.02);                      // back to the heel
+  blade.q(-0.21, 0.86, -0.40, 0.50);
+  blade.b(-0.58, -0.04, -0.42, -0.56, 0, -1.02);
+  blade.close();
+
+  const bevel = pen(x, y, r);
+  bevel.m(0, -0.74);
+  bevel.l(0, 0.72);
+
+  return [
+    { path: blade.P, depth: 1 },
+    { path: bevel.P, depth: 0.30, stroke: r * 0.17, ink: { paint: '#cdd1c6', rough: 0.34 } }
+  ];
 }
 
 /** A hole worried out of the face, with the crack it started. */
@@ -469,7 +498,7 @@ function emblemMarks(kind: Emblem, x: number, y: number, r: number, R: Rng): Mar
     case 'crown': return crownMarks(x, y, r);
     case 'cross': return crossMarks(x, y, r);
     case 'hallmark': return hallmarkMarks(x, y, r);
-    case 'chisel': return chiselMarks(x, y, r);
+    case 'hone': return honeMarks(x, y, r);
     case 'gouge': return gougeMarks(x, y, r, R);
     case 'rosette': return rosetteMarks(x, y, r);
     case 'scrawl': return scrawlMarks(x, y, r, R);
@@ -706,7 +735,7 @@ function drawFace(s: Sheet, die: Die, art: Art, slot: number, R: Rng): void {
 
   const isOne = value === 1;
   const paint = isOne ? art.pipOne : art.pip;
-  const ink: Ink = { paint, rough: art.cut[0], metal: art.cut[1], glow: art.glow ? 0.35 : 0 };
+  const ink: Ink = { paint, rough: art.cut[0], metal: art.cut[1], glow: art.ember ?? 0 };
   const step = PIP_STEP * TILE;
   const r = PIP_R * TILE;
   const mid = { x: cx + TILE / 2, y: cy + TILE / 2 };

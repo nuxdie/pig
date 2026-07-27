@@ -31,10 +31,12 @@
     (Object.keys(P.rules) as RuleId[]).forEach((r) => {
       if (P.rules[r] && card(r)) out.push({ key: 'r' + r, id: r });
     });
-    // A charge drops out of the hand the moment it is played. What is left is
-    // what can still be reached for, which is the only question the hand is
-    // ever asked — a spent card sitting there crossed out answered nothing.
-    P.charges.forEach((ch, i) => { if (!ch.spent && card(ch.id)) out.push({ key: 'c' + i, id: ch.id }); });
+    // Your own charges are not here: they are dealt to you at the near edge
+    // of the table, as cards you can actually play. Theirs stay, because the
+    // only thing you can do about the machine's hand is know about it.
+    if (side === 'them') {
+      P.charges.forEach((ch, i) => { if (!ch.spent && card(ch.id)) out.push({ key: 'c' + i, id: ch.id }); });
+    }
     return out;
   });
 
