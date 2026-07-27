@@ -1,93 +1,139 @@
-import { Color, MeshPhysicalMaterial } from 'three';
-import type { DieId } from '../lib/types';
+import {
+  CanvasTexture, Color, LinearSRGBColorSpace, MeshPhysicalMaterial, SRGBColorSpace, Vector2
+} from 'three';
+import type { Die, DieId } from '../lib/types';
+import { buildAtlas } from './faceArt';
 
 /* Each die keeps the character it had in CSS — bone, chalk, ivory, brass,
-   pauper, saint, devil — but as real surfaces now: brass is actual metal,
-   saint has a clearcoat, chalk is bone dry. plain, whet and crown share the
-   default body, exactly as they did before. */
+   pauper, saint, devil — but as a real surface: brass is actual metal, saint
+   is polished and gilded, chalk is bone dry, the whetstone die is stone.
+
+   The shape of every pip and every scratch comes from `faceArt`, which draws
+   the die's six faces into one atlas: colour, a normal map for the engraving,
+   and one more texture doing three jobs at once — R is ambient occlusion in
+   the bottom of the cuts, G is roughness, B is metalness. That last channel
+   is how brass can be metal everywhere except inside its pips, and how the
+   crown die can be bone with gold in the grooves.
+
+   `roughness` and `metalness` here are the *maximum*: the map only scales
+   them down. */
 
 interface Look {
-  body: ConstructorParameters<typeof MeshPhysicalMaterial>[0];
-  pip: string;
-  /** The 1-pip, when this die carries one. */
-  pipOne: string;
+  params: ConstructorParameters<typeof MeshPhysicalMaterial>[0];
+  /** How hard the engraving bites. */
+  relief?: number;
+  /** Embers, for the one die that has them. */
+  emissive?: number;
 }
 
 const BONE: Look = {
-  body: { color: '#e9dfc2', roughness: 0.34, metalness: 0.0, clearcoat: 0.35, clearcoatRoughness: 0.32 },
-  pip: '#1f241c',
-  pipOne: '#a8362b'
+  params: { roughness: 0.54, metalness: 0, clearcoat: 0.28, clearcoatRoughness: 0.4 }
 };
 
 const LOOKS: Record<DieId, Look> = {
   plain: BONE,
-  whet: BONE,
-  crown: BONE,
-  chalk: {
-    body: { color: '#eceee6', roughness: 0.92, metalness: 0.0, clearcoat: 0.0 },
-    pip: '#4e5449',
-    pipOne: '#4e5449'
-  },
-  ivory: {
-    body: { color: '#f1e2be', roughness: 0.3, metalness: 0.0, clearcoat: 0.4, clearcoatRoughness: 0.25, sheen: 0.4, sheenColor: '#fff6dd' },
-    pip: '#57401f',
-    pipOne: '#57401f'
+  whet: {
+    params: { roughness: 0.74, metalness: 0, clearcoat: 0.1, clearcoatRoughness: 0.6 },
+    relief: 1.15
   },
   brass: {
-    body: { color: '#c8a95c', roughness: 0.29, metalness: 0.92 },
-    pip: '#362810',
-    pipOne: '#7d2418'
+    params: { roughness: 0.44, metalness: 0.92 },
+    relief: 1.1
   },
   pauper: {
-    body: { color: '#c3bda8', roughness: 0.84, metalness: 0.05 },
-    pip: '#33362b',
-    pipOne: '#33362b'
-  },
-  saint: {
-    body: { color: '#e7ebe2', roughness: 0.16, metalness: 0.0, clearcoat: 0.7, clearcoatRoughness: 0.1 },
-    pip: '#2e6b4c',
-    pipOne: '#2e6b4c'
+    params: { roughness: 0.9, metalness: 0.05 },
+    relief: 1.2
   },
   devil: {
-    body: { color: '#57201a', roughness: 0.33, metalness: 0.1, clearcoat: 0.45, clearcoatRoughness: 0.2 },
-    pip: '#e0c4bd',
-    pipOne: '#170604'
+    params: { roughness: 0.52, metalness: 0.1, clearcoat: 0.42, clearcoatRoughness: 0.24 },
+    emissive: 1.35
+  },
+  chalk: {
+    params: { roughness: 0.96, metalness: 0 },
+    relief: 0.6
+  },
+  ivory: {
+    params: {
+      roughness: 0.46, metalness: 0, clearcoat: 0.36, clearcoatRoughness: 0.26,
+      sheen: 0.4, sheenColor: new Color('#fff6dd')
+    }
+  },
+  saint: {
+    params: { roughness: 0.3, metalness: 0.8, clearcoat: 0.66, clearcoatRoughness: 0.1 },
+    relief: 0.9
+  },
+  crown: {
+    params: { roughness: 0.48, metalness: 0.9, clearcoat: 0.3, clearcoatRoughness: 0.24 }
   }
 };
 
-export interface DieMaterials {
+export interface DieMaterial {
   body: MeshPhysicalMaterial;
-  pip: MeshPhysicalMaterial;
-  pipOne: MeshPhysicalMaterial;
 }
 
-const cache = new Map<DieId, DieMaterials>();
+const cache = new Map<DieId, DieMaterial>();
+/** The dice whose emissive breathes. */
+const embers: { m: MeshPhysicalMaterial; base: number }[] = [];
 
-function pipMaterial(hex: string): MeshPhysicalMaterial {
-  return new MeshPhysicalMaterial({
-    color: new Color(hex),
-    roughness: 0.44,
-    metalness: 0.0,
-    clearcoat: 0.5,
-    clearcoatRoughness: 0.25
-  });
+function texture(canvas: HTMLCanvasElement, srgb: boolean): CanvasTexture {
+  const t = new CanvasTexture(canvas);
+  t.colorSpace = srgb ? SRGBColorSpace : LinearSRGBColorSpace;
+  t.anisotropy = 8;
+  return t;
 }
 
 /** Materials are shared between dice of the same kind and live for the session. */
-export function materialsFor(id: DieId): DieMaterials {
-  const hit = cache.get(id);
+export function materialFor(die: Die): DieMaterial {
+  const hit = cache.get(die.id);
   if (hit) return hit;
-  const look = LOOKS[id] ?? BONE;
-  const made: DieMaterials = {
-    body: new MeshPhysicalMaterial({ ...look.body }),
-    pip: pipMaterial(look.pip),
-    pipOne: pipMaterial(look.pipOne)
-  };
-  cache.set(id, made);
+
+  const look = LOOKS[die.id] ?? BONE;
+  const atlas = buildAtlas(die);
+
+  const map = texture(atlas.colour, true);
+  const normalMap = texture(atlas.normal, false);
+  const surfaceMap = texture(atlas.surface, false);
+  const emissiveMap = atlas.emissive ? texture(atlas.emissive, true) : null;
+
+  const body = new MeshPhysicalMaterial({
+    ...look.params,
+    map,
+    normalMap,
+    normalScale: new Vector2(look.relief ?? 1, look.relief ?? 1),
+    // the clearcoat is a separate layer and needs telling about the pits too,
+    // or the lacquer floats flat over them
+    clearcoatNormalMap: look.params?.clearcoat ? normalMap : null,
+    clearcoatNormalScale: new Vector2(0.6, 0.6),
+    aoMap: surfaceMap,
+    roughnessMap: surfaceMap,
+    metalnessMap: surfaceMap,
+    emissive: emissiveMap ? new Color('#ffffff') : new Color('#000000'),
+    emissiveMap,
+    emissiveIntensity: look.emissive ?? 0
+  });
+
+  if (emissiveMap && look.emissive) embers.push({ m: body, base: look.emissive });
+
+  const made: DieMaterial = { body };
+  cache.set(die.id, made);
   return made;
 }
 
+/** The devil's die is never quite out. Called from the tray's frame loop. */
+export function breathe(seconds: number): void {
+  for (const e of embers) {
+    e.m.emissiveIntensity = e.base * (0.78 + 0.22 * Math.sin(seconds * 1.7));
+  }
+}
+
 export function disposeMaterials(): void {
-  cache.forEach((m) => { m.body.dispose(); m.pip.dispose(); m.pipOne.dispose(); });
+  cache.forEach(({ body }) => {
+    body.map?.dispose();
+    body.normalMap?.dispose();
+    body.aoMap?.dispose();
+    body.emissiveMap?.dispose();
+    body.dispose();
+  });
   cache.clear();
+  embers.length = 0;
 }

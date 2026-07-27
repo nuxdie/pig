@@ -42,8 +42,9 @@ src/
     music.ts           the generative score and each foe's leitmotif
   dice/                the tray — WebGL and rigid-body physics
     solver.ts          Rapier world, the throw, trajectory recording
-    scene.ts           renderer, camera, lights, shadow-catching floor
-    dieMesh.ts         rounded body + real pip geometry
+    scene.ts           renderer, camera fitted to the tray, lights, floor
+    dieMesh.ts         the rounded body, and the atlas laid over its faces
+    faceArt.ts         every face drawn from a height field: pips, wear, marks
     materials.ts       one PBR surface per die (brass is actual metal)
     faces.ts           slot ↔ normal ↔ orientation
     dice3d.ts          the Tray: mount, throw, drag-to-inspect
@@ -57,7 +58,7 @@ src/
   styles/              the original stylesheet, split by concern
 ```
 
-### Three deliberate choices
+### Four deliberate choices
 
 **The dice are the random number generator.** A roll is one rigid-body
 simulation, and whichever face comes up *is* what was rolled — nothing picks a
@@ -71,6 +72,20 @@ to two per cent on a face, well short of what a player would notice but short
 of `Math.random` too. `solver.ts` documents the measurements, what makes it
 worse, and what an exact fix would cost. Re-run that check before touching the
 throw, the tray, or the solver settings.
+
+**The pips are holes, not geometry.** Every face of every die is drawn at
+runtime into one texture atlas, and all of it starts as a *height field* —
+white is the surface, black is the bottom of the cut. Blurred a little it
+gives the normal map that shapes the wall of a pit; blurred a lot it gives the
+occlusion that sits in the bottom of one. Paint reaches only the floor of the
+cut, never the wall, which is the difference between a pip that reads as a
+hole and a pip that reads as a sticker.
+
+That the artwork is arbitrary is the point: a devil's face costs no more to
+cut than a pip does. Each die carries a mark — a hallmark struck into the
+brass 1, a crown, a gouge, a devil looking back at you — and the mark always
+*replaces* a pip rather than adding one, so the face is still countable.
+`faceArt.ts` holds every die's palette and wear in one table.
 
 **The dice are not a component.** `dice/` owns its own canvas, scene graph and
 animation loop. Svelte hands it an element and otherwise stays out of the way;

@@ -4,6 +4,7 @@ import { reduced } from '../lib/motion';
 import type { Die } from '../lib/types';
 import { buildDie, disposeDieGeometry } from './dieMesh';
 import { restQuaternion, upSlot } from './faces';
+import { breathe, disposeMaterials } from './materials';
 import { createStage, type Stage } from './scene';
 import {
   isReady, physicsReady, solveThrow, STEP_DT, TRAY_D, TRAY_W,
@@ -315,6 +316,7 @@ export class Tray {
     if (!stage) return;
 
     const now = performance.now();
+    if (!reduced) breathe(now / 1000);
 
     if (this.playing) {
       const t = this.playing;
@@ -360,6 +362,7 @@ export class Tray {
     this.stage?.dispose();
     this.stage = null;
     disposeDieGeometry();
+    disposeMaterials();
     this.canvas.remove();
   }
 }

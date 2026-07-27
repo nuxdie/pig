@@ -37,7 +37,9 @@
 
   .bay{gap:9px;padding:11px}
   .whose{width:calc(100% + 22px);margin:-11px -11px 0;padding:9px 8px;font-size:11px;letter-spacing:.18em}
-  .tray{height:clamp(124px,31vw,152px)}
+  /* the dice have to be legible at arm's length on a phone, so the tray gets
+     the height before anything else in the bay does */
+  .tray{height:clamp(146px,36vw,182px)}
   .online__lab{font-size:9px}
   .online__num{font-size:40px}
   .online__note{font-size:11px}
@@ -67,7 +69,7 @@
 }
 
 @media (max-width:380px){
-  .tray{height:118px}
+  .tray{height:136px}
   .col__totalnum{font-size:22px}
   .lines{height:60px}
   .mini{width:29px;height:41px}
