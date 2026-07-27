@@ -117,8 +117,3 @@ export function buildDie(die: Die): Group {
   group.add(body);
   return group;
 }
-
-export function disposeDieGeometry(): void {
-  bodyGeo?.dispose();
-  bodyGeo = null;
-}

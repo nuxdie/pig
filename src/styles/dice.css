@@ -10,6 +10,21 @@
   margin:2px 0 6px;
   touch-action:none;
 }
+/* A dice card carries the die itself, turning over — one shared renderer
+   blits into these, so there can be a whole satchel of them at once. */
+.pcard__die{position:relative;display:block}
+.pcard__die-fall{display:block;width:100%;height:100%}
+.pcard__die.is-live .pcard__die-fall{display:none}
+.diespin{
+  display:block;width:100%;height:100%;
+  /* it is a thing to be handled, not a thing to scroll past */
+  touch-action:none;cursor:grab;
+}
+.diespin:active{cursor:grabbing}
+/* the peek card is inert so a tap anywhere dismisses it — except the die,
+   which is the one thing in there you are meant to be able to take hold of */
+.cardbtn--peek .diespin{pointer-events:auto;cursor:grab}
+.cardbtn:disabled .diespin{cursor:default}
 .tray__canvas{
   display:block;width:100%;height:100%;
   /* the throw comes in from the left, so give it somewhere to come from */

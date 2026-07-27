@@ -2,6 +2,7 @@
   import { avgOf, DICE, onesOf } from '../lib/dice';
   import { FAMILY_LABEL } from '../lib/cards';
   import type { Card } from '../lib/types';
+  import DieBadge from './DieBadge.svelte';
   import FamilyMark from './FamilyMark.svelte';
   import Icon from './Icon.svelte';
 
@@ -15,7 +16,11 @@
 <span class="ptier">{c.tier}</span>
 <span class="pcorner pcorner--tl"><FamilyMark cls={c.cls} /></span>
 <span class="pcorner pcorner--br"><FamilyMark cls={c.cls} /></span>
-<Icon id={c.id} cls="pcard__art" />
+{#if c.die}
+  <DieBadge id={c.die} cls="pcard__art" />
+{:else}
+  <Icon id={c.id} cls="pcard__art" />
+{/if}
 <span class="pcard__body">
   <span class="pcard__name">{c.name}</span>
   <span class="pcard__fam">{FAMILY_LABEL[c.cls]}</span>

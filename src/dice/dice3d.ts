@@ -2,9 +2,9 @@ import { Group, Quaternion, Raycaster, Vector2, Vector3 } from 'three';
 import { play } from '../audio/sfx';
 import { reduced } from '../lib/motion';
 import type { Die } from '../lib/types';
-import { buildDie, disposeDieGeometry } from './dieMesh';
+import { buildDie } from './dieMesh';
 import { restQuaternion, upSlot } from './faces';
-import { breathe, disposeMaterials } from './materials';
+import { breathe } from './materials';
 import { createStage, type Stage } from './scene';
 import {
   isReady, physicsReady, solveThrow, STEP_DT, TRAY_D, TRAY_W,
@@ -361,8 +361,8 @@ export class Tray {
     this.dice = [];
     this.stage?.dispose();
     this.stage = null;
-    disposeDieGeometry();
-    disposeMaterials();
+    // The die geometry and the face atlases are deliberately left alone: the
+    // previews on the dice cards share them and outlive any one tray.
     this.canvas.remove();
   }
 }

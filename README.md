@@ -48,6 +48,7 @@ src/
     materials.ts       one PBR surface per die (brass is actual metal)
     faces.ts           slot ↔ normal ↔ orientation
     dice3d.ts          the Tray: mount, throw, drag-to-inspect
+    preview.ts         the die turning over on its own card
   ui/                  Svelte components
     App.svelte         masthead + board
     Column.svelte      one player's ledger, meter, loadout, stamp
@@ -86,6 +87,13 @@ cut than a pip does. Each die carries a mark — a hallmark struck into the
 brass 1, a crown, a gouge, a devil looking back at you — and the mark always
 *replaces* a pip rather than adding one, so the face is still countable.
 `faceArt.ts` holds every die's palette and wear in one table.
+
+A dice card shows that same die turning over, and you can take hold of it
+there too. There can be seven of those on screen at once, so they do not get
+a WebGL context each: one renderer draws them all in turn into one small
+buffer and each card blits its corner into a plain 2D canvas, at most three
+a frame. Geometry and atlases are shared with the tray, so a die looks the
+same on its card as it does on the table and is only built once.
 
 **The dice are not a component.** `dice/` owns its own canvas, scene graph and
 animation loop. Svelte hands it an element and otherwise stays out of the way;

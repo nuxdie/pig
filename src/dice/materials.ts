@@ -82,7 +82,11 @@ function texture(canvas: HTMLCanvasElement, srgb: boolean): CanvasTexture {
   return t;
 }
 
-/** Materials are shared between dice of the same kind and live for the session. */
+/**
+ * Materials are shared between dice of the same kind and live for the session:
+ * the tray and the dice cards both draw from here, and the atlas behind one is
+ * the most expensive thing in `dice/` to build.
+ */
 export function materialFor(die: Die): DieMaterial {
   const hit = cache.get(die.id);
   if (hit) return hit;
@@ -124,16 +128,4 @@ export function breathe(seconds: number): void {
   for (const e of embers) {
     e.m.emissiveIntensity = e.base * (0.78 + 0.22 * Math.sin(seconds * 1.7));
   }
-}
-
-export function disposeMaterials(): void {
-  cache.forEach(({ body }) => {
-    body.map?.dispose();
-    body.normalMap?.dispose();
-    body.aoMap?.dispose();
-    body.emissiveMap?.dispose();
-    body.dispose();
-  });
-  cache.clear();
-  embers.length = 0;
 }
