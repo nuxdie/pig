@@ -36,10 +36,18 @@
    tipped the way a hand sits, and the one you are pointing at comes up out
    of the fan to be read.  */
 .hand{
-  display:flex;justify-content:center;align-items:flex-end;
-  width:100%;padding-top:2px;min-height:104px;
+  display:flex;flex-direction:column;align-items:center;
+  width:100%;padding-top:2px;
 }
-.hand.is-empty{min-height:0;padding:0}
+.hand.is-empty{padding:0}
+.hand__fan{display:flex;justify-content:center;align-items:flex-end;min-height:112px}
+/* What the card in your hand does. The height is held whether or not a card
+   is out, so reaching for one never moves the table under it. */
+.hand__read{
+  margin:5px 0 0;min-height:2.5em;max-width:34em;
+  font-size:12.5px;line-height:1.25;text-align:center;color:var(--ink-soft);
+}
+.hand__read b{color:var(--ink);font-weight:700}
 .handcard{
   position:relative;flex:0 0 auto;width:74px;height:100px;
   margin:0 -7px;padding:13px 4px 6px;
@@ -53,14 +61,18 @@
 .handcard:nth-child(1){transform:rotate(-4deg) translateY(4px)}
 .handcard:nth-child(2){transform:rotate(0deg)}
 .handcard:nth-child(3){transform:rotate(4deg) translateY(4px)}
-.handcard:hover:not(:disabled),.handcard:focus-visible{
-  transform:translateY(-12px) rotate(0);box-shadow:2px 8px 0 var(--shade);z-index:3;
+/* held out of the fan: the one you are reading, and the one a press plays */
+.handcard.is-out{
+  transform:translateY(-14px) rotate(0);box-shadow:2px 9px 0 var(--shade);z-index:3;
 }
 .handcard:focus-visible{outline:2px solid var(--stamp);outline-offset:2px}
-.handcard:active:not(:disabled),.handcard.is-pressed{
-  transform:translateY(-4px) rotate(0) scale(.97);box-shadow:1px 2px 0 var(--shade);
+.handcard.is-out:active,.handcard.is-pressed{
+  transform:translateY(-6px) rotate(0) scale(.97);box-shadow:1px 3px 0 var(--shade);
 }
-.handcard:disabled{opacity:.4;cursor:default;box-shadow:none}
+/* readable, liftable, and not going anywhere */
+.handcard.is-off{opacity:.45;box-shadow:none}
+.handcard.is-off.is-out{opacity:.7;box-shadow:1px 4px 0 var(--shade)}
+.handcard.is-out .handcard__key{color:var(--stamp);font-weight:700}
 .handcard__band{position:absolute;top:0;left:0;right:0;height:4px;background:var(--tin)}
 .handcard--silver .handcard__band{background:var(--silver)}
 .handcard--gold .handcard__band{background:linear-gradient(90deg,var(--gold-deep),var(--gold-lit) 50%,var(--gold-deep))}
@@ -77,5 +89,5 @@
 .handcard .fam--hand{width:9px;height:9px;position:absolute;top:6px;left:5px;opacity:.75;color:var(--stamp)}
 /* Shield is not pressed, it is counted on. It reads as part of the hand and
    never as something you forgot to use. */
-.handcard.is-held{border-style:solid;opacity:.72}
+.handcard.is-held{border-style:solid}
 .handcard.is-held .handcard__key{color:var(--good)}

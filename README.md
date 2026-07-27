@@ -55,7 +55,7 @@ src/
     App.svelte         top bar + board
     Scoreline.svelte   one player's balance, meter, hand, stamp
     Bay.svelte         tray, the line, controls, verdict, keyboard
-    Hand.svelte        your playable cards, dealt to the near edge of the table
+    Hand.svelte        your playable cards: reach for one to read it, press to play
     Feed.svelte        scoring events, passing by
     Dev.svelte         devmode: stages, cheats, every card, every die
     Draft.svelte       the three cards on offer, over everything else
@@ -144,8 +144,12 @@ is allowed to write a literal colour. `index.html` stamps the chosen sheet on
 ## Playing
 
 Space rolls, `B` banks, `1`/`2`/`3` take a card at a draft, `M` mutes.
-Charges are the cards in the hand at the bottom; each carries its own key,
-printed on it. The word in the top bar
+Charges are the cards in the hand at the bottom. Reaching for one holds it out
+of the fan and prints what it does underneath; pressing the card already held
+out plays it. With a mouse the reaching is the hover, so it stays one click and
+you have read the card before you spend it; with a finger it is two taps, which
+is the right number for a one-shot gold card. Each carries its own key, printed
+on it, and the key plays it outright. The word in the top bar
 between full screen and sound turns the paper light, dark, or over to the
 system setting.
 

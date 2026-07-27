@@ -27,7 +27,8 @@
   .feed{top:5px;right:6px}
   .feed__row{font-size:10px;padding:2px 6px}
   .controls .btn{padding:19px 6px;font-size:14px}
-  .hand{min-height:94px}
+  .hand__fan{min-height:100px}
+  .hand__read{font-size:12px;min-height:2.6em}
   .handcard{width:66px;height:90px;padding:12px 3px 5px}
   .handcard__art{width:23px;height:23px}
   .handcard__name{font-size:9px}

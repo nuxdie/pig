@@ -105,7 +105,7 @@
     for (const [c, k, n, id] of CHARGE_KEYS) {
       if (is(c, k, n)) {
         e.preventDefault();
-        tap(handEl?.el().querySelector<HTMLElement>(`[data-charge-id="${id}"]:not(:disabled)`));
+        tap(handEl?.el().querySelector<HTMLElement>(`[data-charge-id="${id}"]:not(.is-off)`));
         tryCharge(id);
         return;
       }
