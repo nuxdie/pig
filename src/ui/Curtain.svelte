@@ -33,7 +33,7 @@
     {#if S.screen}
       {#key S.screen}
         {#if S.screen.kind === 'intro'}
-          <Intro back={S.screen.back} />
+          <Intro from={S.screen.from} />
         {:else if S.screen.kind === 'circuit'}
           <Circuit />
         {:else if S.screen.kind === 'spoils'}

@@ -122,6 +122,8 @@ export interface Run {
   hired: CardId[];
   head: number;
   active: boolean;
+  /** The sacrifice has been made. It can only be made once. */
+  spent?: boolean;
 }
 
 export interface RecordBook {

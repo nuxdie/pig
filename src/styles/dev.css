@@ -1,0 +1,48 @@
+/* ---------- devmode ----------
+   Deliberately unlovely: it is a tool, and it should never be mistaken for
+   part of the game. Backtick opens it; it only exists in dev builds or on
+   a URL that asks for it. */
+.dev{
+  position:fixed;left:0;right:0;bottom:0;z-index:200;
+  max-height:62vh;display:flex;flex-direction:column;
+  background:#14171a;color:#d8dee3;
+  font-family:var(--mono);font-size:11px;
+  border-top:2px solid #4a9;box-shadow:0 -8px 24px rgba(0,0,0,.4);
+}
+.dev__bar{
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  padding:6px 8px;background:#0d1013;border-bottom:1px solid #2a3136;
+}
+.dev__mark{color:#4a9;letter-spacing:.2em}
+.dev__spacer{flex:1 1 auto}
+.dev__read{color:#7f8c94;letter-spacing:.06em;white-space:nowrap}
+.dev__tab{
+  font:inherit;padding:4px 9px;cursor:pointer;letter-spacing:.1em;
+  background:#20262b;color:#c3ccd2;border:1px solid #333c42;
+}
+.dev__tab:hover{background:#2b3238}
+.dev__tab.is-on{background:#4a9;color:#06110c;border-color:#4a9}
+
+.dev__body{overflow:auto;padding:8px;display:flex;flex-direction:column;gap:7px}
+.dev__group{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.dev__lab{color:#7f8c94;letter-spacing:.12em;text-transform:uppercase;font-size:9px;min-width:88px}
+.dev__btn{
+  font:inherit;padding:3px 8px;cursor:pointer;
+  background:#20262b;color:#c3ccd2;border:1px solid #333c42;
+}
+.dev__btn:hover{background:#2b3238;color:#fff}
+.dev__btn.is-on{background:#4a9;color:#06110c;border-color:#4a9}
+.dev__btn--dice{border-color:#6a7f52}
+.dev__btn--rule{border-color:#4a7a5e}
+.dev__btn--charge{border-color:#7a6a45}
+
+.dev__gallery{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;
+}
+.dev__gallery .cardbtn{width:100%;pointer-events:auto}
+
+.dev__dice{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px}
+.dev__die{margin:0;display:flex;flex-direction:column;align-items:center;gap:4px}
+.dev__die figcaption{color:#7f8c94;letter-spacing:.1em}
+.dev__dieart{display:block;width:118px;height:118px}
+.dev__dieart svg{width:100%;height:100%;color:#d8dee3}

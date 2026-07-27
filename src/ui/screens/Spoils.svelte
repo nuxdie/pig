@@ -19,6 +19,9 @@
   let skip = $state(false);
 
   const full = $derived(run.souvenirs.length >= SATCHEL_MAX);
+  /* A full satchel does not mean you cannot take anything — it means taking
+     costs you something. Say that, in those words, and show the trade. */
+  const trading = $derived(full && !skip && chosen !== null);
 
   const ready = $derived.by(() => {
     if (!offer.length) return true;                        // nothing to take
@@ -28,12 +31,19 @@
     return true;
   });
 
+  const taking = $derived(chosen === null ? null : card(offer[chosen])!);
+  const leaving = $derived(dropping === null ? null : card(run.souvenirs[dropping])!);
+
   const prompt = $derived.by(() => {
     if (!offer.length) return 'Nothing new to keep from this one.';
     if (skip) return 'Leaving the table empty-handed.';
-    if (chosen === null) return 'Choose a card to keep before you move on.';
-    if (full && dropping === null) return 'Satchel full — choose one to leave behind.';
-    return 'Keeping ' + card(offer[chosen])!.name + '.';
+    if (chosen === null) {
+      return full
+        ? `Your satchel is full at ${SATCHEL_MAX}. Pick what you want anyway — you will trade for it.`
+        : 'Choose a card to keep before you move on.';
+    }
+    if (full && dropping === null) return `Now pick what ${taking!.name} replaces.`;
+    return `Keeping ${taking!.name}.`;
   });
 
   function commit() {
@@ -45,11 +55,13 @@
 
   function take(i: number) {
     chosen = chosen === i ? null : i;
+    if (chosen === null) dropping = null;
     skip = false;
     play('take');
   }
 
   function drop(i: number) {
+    if (!trading) return;
     dropping = dropping === i ? null : i;
     play('pass');
   }
@@ -75,58 +87,70 @@
   {last ? ' There is no one left to play.' : ' Lose the next and all of it goes.'}
 </p>
 
-<div class="cur__block">
-  <p class="cur__head">Keep one — satchel {run.souvenirs.length}/{SATCHEL_MAX}</p>
+{#if offer.length}
+  <div class="cur__block">
+    <p class="cur__head">Keep one from the match</p>
 
-  <div class="satchel {offer.length ? 'satchel--cards' : ''}">
-    {#each offer as id, i (id)}
-      <button
-        class="cardbtn cardbtn--{card(id)!.cls} cardbtn--{card(id)!.tier} cardbtn--pick"
-        class:is-chosen={chosen === i}
-        disabled={full && dropping === null}
-        onclick={() => take(i)}
-      >
-        <CardFace c={card(id)!} />
-      </button>
-    {:else}
-      <p class="satchel__empty">nothing new to keep</p>
-    {/each}
+    <div class="satchel satchel--cards">
+      {#each offer as id, i (id)}
+        <button
+          class="cardbtn cardbtn--{card(id)!.cls} cardbtn--{card(id)!.tier} cardbtn--pick"
+          class:is-chosen={chosen === i}
+          class:is-dim={chosen !== null && chosen !== i}
+          onclick={() => take(i)}
+        >
+          <CardFace c={card(id)!} />
+        </button>
+      {/each}
+    </div>
+
+    <button class="linkbtn" onclick={() => { skip = !skip; if (skip) { chosen = null; dropping = null; } }}>
+      {skip ? 'Actually, let me choose' : 'Keep nothing from this match'}
+    </button>
   </div>
+{/if}
 
-  {#if full}
-    <p class="cur__note">Satchel full. Tap one below to leave it behind.</p>
+<div class="cur__block">
+  <p class="cur__head">
+    Satchel — {run.souvenirs.length}/{SATCHEL_MAX}{#if full && !skip}, and full{/if}
+  </p>
+
+  {#if trading}
+    <p class="swap">
+      <b>{taking!.name}</b>
+      <span class="swap__arrow" aria-label="in exchange for">⇄</span>
+      {#if leaving}<b>{leaving.name}</b>{:else}<em>pick one to leave behind</em>{/if}
+    </p>
   {/if}
 
-  <p class="cur__head">Carried</p>
-  <div class="satchel {run.souvenirs.length ? 'satchel--cards' : ''}">
-    {#each run.souvenirs as id, i (i)}
-      <button
-        class="cardbtn cardbtn--{card(id)!.cls} cardbtn--{card(id)!.tier} cardbtn--pick"
-        class:is-drop={dropping === i}
-        onclick={() => drop(i)}
-      >
-        <CardFace c={card(id)!} />
-      </button>
-    {:else}
-      <p class="satchel__empty">nothing yet</p>
-    {/each}
-  </div>
+  {#if run.souvenirs.length}
+    <div class="satchel satchel--cards" class:is-picking={trading}>
+      {#each run.souvenirs as id, i (i)}
+        <button
+          class="cardbtn cardbtn--{card(id)!.cls} cardbtn--{card(id)!.tier} cardbtn--pick"
+          class:is-drop={dropping === i}
+          disabled={!trading}
+          onclick={() => drop(i)}
+        >
+          <CardFace c={card(id)!} />
+        </button>
+      {/each}
+    </div>
+  {:else}
+    <p class="satchel__empty">nothing yet</p>
+  {/if}
 </div>
 
 <p class="cur__prompt" class:is-ok={ready}>{prompt}</p>
 
-{#if offer.length}
-  <button class="linkbtn" onclick={() => { skip = !skip; if (skip) chosen = null; }}>
-    {skip ? 'Actually, let me choose' : 'Keep nothing from this match'}
-  </button>
-{/if}
-
 <div class="cur__row">
-  <button class="btn cur__go" disabled={!ready} onclick={onWalk}>Walk away with {run.purse}</button>
-  {#if !last}
-    <button class="btn btn--bank" disabled={!ready} onclick={onPlayOn}>
+  {#if last}
+    <button class="btn cur__go" disabled={!ready} onclick={onWalk}>Walk away with {run.purse}</button>
+  {:else}
+    <button class="btn cur__go" disabled={!ready} onclick={onPlayOn}>
       On to {CIRCUIT[run.rung + 1].name}
     </button>
+    <button class="btn" disabled={!ready} onclick={onWalk}>Walk away with {run.purse}</button>
   {/if}
 </div>
 

@@ -132,6 +132,17 @@
 .cardbtn--peek .pcard__art{width:60px;height:60px}
 .cardbtn--peek .pcard__name{font-size:19px}
 .cardbtn--peek .pcard__desc{font-size:13.5px}
+/* The desktop read: beside the card, never over the board. */
+.hovercard{
+  position:fixed;z-index:75;width:268px;pointer-events:none;
+  transform:translate(-50%,-100%);
+  filter:drop-shadow(0 6px 18px rgba(31,36,28,.28));
+  animation:hovercardIn .12s ease-out both;
+}
+.hovercard--below{transform:translate(-50%,0)}
+.hovercard .cardbtn--peek{width:100%}
+@keyframes hovercardIn{from{opacity:0}to{opacity:1}}
+
 .peek__close{
   margin:0;font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;
   text-transform:uppercase;color:var(--pencil);

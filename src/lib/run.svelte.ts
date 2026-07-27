@@ -78,6 +78,7 @@ export function loadSaved(): void {
       run.hired = (Array.isArray(run.hired) ? run.hired as string[] : [])
         .filter((id): id is CardId => isCardId(id));
       run.head = Number(run.head) || 0;
+      run.spent = !!run.spent;
       runState.run = run as Run;
     }
   } catch { runState.run = null; }

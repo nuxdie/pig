@@ -1,7 +1,17 @@
 <script lang="ts">
-  import { enterCircuit } from '../../lib/game.svelte';
+  import { enterCircuit, S, type Screen } from '../../lib/game.svelte';
 
-  let { back }: { back: boolean } = $props();
+  /* Undefined means nobody sent us here — this is the first screen of all,
+     and the only way on is forward. Anything else, including null for the
+     board itself, is somewhere to go back to. */
+  let { from }: { from?: Screen | null } = $props();
+
+  const returning = $derived(from !== undefined);
+
+  function leave() {
+    if (returning) S.screen = from ?? null;
+    else enterCircuit();
+  }
 </script>
 
 <p class="cur__eyebrow">A dice game about knowing when to stop</p>
@@ -41,4 +51,4 @@
   </div>
 </div>
 
-<button class="btn cur__go" onclick={enterCircuit}>{back ? 'Back' : 'To the circuit'}</button>
+<button class="btn cur__go" onclick={leave}>{returning ? 'Back' : 'To the circuit'}</button>

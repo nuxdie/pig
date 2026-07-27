@@ -12,6 +12,7 @@ import './styles/draft.css';
 import './styles/dice.css';
 import './styles/online.css';
 import './styles/controls.css';
+import './styles/dev.css';
 import './styles/responsive.css';
 
 import { showScreen, startMatch } from './lib/game.svelte';
@@ -26,4 +27,4 @@ if (!resumed) newRun();
 mount(App, { target: document.body });
 
 startMatch();
-showScreen(resumed ? { kind: 'circuit' } : { kind: 'intro', back: false });
+showScreen(resumed ? { kind: 'circuit' } : { kind: 'intro' });

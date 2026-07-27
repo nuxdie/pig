@@ -38,7 +38,8 @@ export interface DraftState {
 }
 
 export type Screen =
-  | { kind: 'intro'; back: boolean }
+  /** `from` is where Back goes: a screen, the board (null), or nowhere yet. */
+  | { kind: 'intro'; from?: Screen | null }
   | { kind: 'circuit' }
   | { kind: 'spoils' }
   | { kind: 'walked'; banked: number; cleared: boolean }
@@ -339,6 +340,18 @@ function openDraft(who: Side, milestone: Milestone, done: () => void): void {
     setTimeout(() => { chooseDraft(offer.indexOf(pick)); }, 1600);
   }
 }
+
+/* ---- seams the dev panel reaches through. Nothing else calls these. ---- */
+
+export const devHooks = {
+  grant: (who: Side, c: Card) => { grant(who, c); },
+  openDraft: (who: Side, m: Milestone) => {
+    if (S.draft) return;
+    openDraft(who, m, () => { S.busy = false; });
+  },
+  finish: (winner: Side) => { finish(winner); },
+  remount: (who: Side) => { mountTray(who); }
+};
 
 export function chooseDraft(i: number): void {
   const d = S.draft;
@@ -747,6 +760,11 @@ export function showScreen(s: Screen): void { S.screen = s; }
 
 export function hideScreen(): void { S.screen = null; }
 
+/** The rules, from wherever you happened to be — and Back means back there. */
+export function showHelp(): void {
+  S.screen = { kind: 'intro', from: S.screen };
+}
+
 export function enterCircuit(): void {
   if (!hasRun() || !RUN().active) newRun();
   S.screen = { kind: 'circuit' };
@@ -771,6 +789,31 @@ export function enterRuin(): void {
   clearHires();
   closeRun();
   S.screen = { kind: 'ruin', oppName: opp.name, lost, souvenirs, rung };
+}
+
+/**
+ * Everything you own, for one more go at the rung that just beat you: the
+ * purse, the satchel, whatever the market sold you, the head start. The
+ * opponent keeps all of theirs. Once per run, and only ever from ruin.
+ */
+export function sacrificeStake(): number {
+  const r = runState.run;
+  if (!r || r.spent) return 0;
+  return r.purse + r.souvenirs.length + (r.hired?.length ?? 0);
+}
+
+export function sacrifice(): void {
+  const r = runState.run;
+  if (!r || r.spent) return;
+  r.spent = true;
+  r.active = true;
+  r.purse = 0;
+  r.souvenirs = [];
+  r.hired = [];
+  r.head = 0;
+  saveRun();
+  S.screen = null;
+  startMatch();
 }
 
 /** Cards from this win that are not already in the satchel. */

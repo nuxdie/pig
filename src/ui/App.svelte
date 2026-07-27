@@ -1,11 +1,13 @@
 <script lang="ts">
   import { CIRCUIT } from '../lib/circuit';
-  import { S, showScreen, syncScores } from '../lib/game.svelte';
+  import { S, showHelp, syncScores } from '../lib/game.svelte';
   import { replay } from '../lib/motion';
   import { RUN } from '../lib/run.svelte';
   import Bay from './Bay.svelte';
   import Column from './Column.svelte';
   import Curtain from './Curtain.svelte';
+  import Dev from './Dev.svelte';
+  import Fullscreen from './Fullscreen.svelte';
   import Mixer from './Mixer.svelte';
   import Peek from './Peek.svelte';
 
@@ -32,13 +34,15 @@
 
 <Curtain />
 <Peek />
+<Dev />
 
 <div class="sheet" bind:this={sheetEl}>
   <header class="masthead">
     <h1>Pig</h1>
     <p class="masthead__sub">
       <span>The Circuit — rung <b>{run.rung + 1} of {CIRCUIT.length}</b></span>
-      <button class="linkbtn" onclick={() => showScreen({ kind: 'intro', back: true })}>How to play</button>
+      <button class="linkbtn" onclick={showHelp}>How to play</button>
+      <Fullscreen />
     </p>
     <Mixer />
   </header>

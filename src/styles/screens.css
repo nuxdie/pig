@@ -37,7 +37,16 @@
   text-transform:uppercase;color:var(--red);
 }
 .cur__prompt.is-ok{color:var(--good)}
-.cur__go{flex:0 0 auto;padding:16px;font-size:14px}
+/* The one thing to press next. Every curtain screen has exactly one.
+   Doubled up on .btn because controls.css loads after this file and would
+   otherwise put the paper background back. */
+.btn.cur__go{
+  flex:0 0 auto;padding:18px;font-size:15px;letter-spacing:.18em;
+  background:var(--stamp);border-color:var(--stamp);color:var(--paper-hi);
+  box-shadow:4px 4px 0 #17283c;
+}
+.btn.cur__go:hover:not(:disabled){background:#3a5883}
+.btn.cur__go:active:not(:disabled),.btn.cur__go.is-pressed{box-shadow:0 0 0 #17283c}
 
 .intro__rules{margin:0;padding:0;list-style:none;counter-reset:r}
 .intro__rules li{
@@ -106,6 +115,19 @@ kbd{
 .cardbtn--pick.is-chosen .pcard__art,.cardbtn--pick.is-chosen .pcorner{color:#fff}
 .cardbtn--pick.is-chosen::before{border-color:rgba(255,255,255,.45)}
 .cardbtn--pick.is-chosen .ptier{background:rgba(0,0,0,.25)}
+.cardbtn--pick.is-dim{opacity:.5}
+/* Once a card is picked and the satchel is full, the carried row *is* the
+   question, so it says so rather than sitting there greyed out. */
+.satchel.is-picking{
+  outline:2px dashed var(--red);outline-offset:7px;border-radius:2px;
+}
+.swap{
+  margin:0 0 12px;font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;
+  display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;
+  color:var(--ink);
+}
+.swap em{color:var(--pencil);font-style:italic;letter-spacing:0;font-family:var(--slab);font-size:14px}
+.swap__arrow{font-size:19px;color:var(--red);line-height:1}
 .cardbtn--pick.is-drop{background:var(--red);border-color:var(--red);color:#fff}
 .cardbtn--pick.is-drop .pcard__desc,.cardbtn--pick.is-drop .pcard__fam{color:rgba(255,255,255,.85)}
 .cardbtn--pick.is-drop .pcard__art,.cardbtn--pick.is-drop .pcorner{color:#fff}
@@ -201,3 +223,12 @@ input[type=range]::-webkit-slider-thumb{
 input[type=range]::-moz-range-thumb{width:10px;height:15px;background:var(--ink);border:0;border-radius:1px}
 input[type=range]:focus-visible{outline:2px solid var(--stamp);outline-offset:4px}
 
+/* The hail mary. Dressed as the bad idea it is. */
+.sacrifice{border:1px solid var(--red);background:rgba(168,54,43,.05);padding:14px;align-items:flex-start}
+.sacrifice .cur__head{color:var(--red)}
+.btn.btn--sacrifice{
+  background:var(--red);border-color:var(--red);color:var(--paper-hi);
+  box-shadow:3px 3px 0 #6d211a;
+}
+.btn.btn--sacrifice:hover:not(:disabled){background:#bd4034}
+.btn.btn--sacrifice:active:not(:disabled){box-shadow:0 0 0 #6d211a}

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { card } from '../../lib/cards';
   import { CIRCUIT, SATCHEL_MAX } from '../../lib/circuit';
-  import { hideScreen, showScreen, startMatch } from '../../lib/game.svelte';
+  import { hideScreen, showHelp, showScreen, startMatch } from '../../lib/game.svelte';
   import { closeRun, newRun, RUN } from '../../lib/run.svelte';
   import { STORE } from '../../lib/storage';
   import Mini from '../Mini.svelte';
@@ -56,7 +56,7 @@
 </button>
 
 <div class="cur__row">
-  <button class="btn" onclick={() => showScreen({ kind: 'intro', back: true })}>How to play</button>
+  <button class="btn" onclick={showHelp}>How to play</button>
   {#if resuming}
     <button class="btn" onclick={abandon}>Abandon run</button>
   {/if}
