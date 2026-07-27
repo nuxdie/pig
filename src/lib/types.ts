@@ -124,6 +124,11 @@ export interface Run {
   active: boolean;
   /** The sacrifice has been made. It can only be made once. */
   spent?: boolean;
+  /** Where this run's randomness comes from, and how far through it we are.
+   *  Both are saved so a reload deals the same cards it was going to deal —
+   *  and so a finished run can be re-run by something checking it. */
+  seed: number;
+  draws: number;
 }
 
 export interface RecordBook {

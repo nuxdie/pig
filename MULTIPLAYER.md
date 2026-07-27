@@ -118,16 +118,31 @@ seeds all off one stream; seed and draw count persisted with the run so a reload
 lands back on the same deal. *Done, and verified: same seed reproduces exactly,
 different seed diverges, restore-by-fast-forward lands on the page it left.*
 
-**2 — Prise the engine off the circuit.** `startMatch()` is hardwired to `RUN()`
-and `CIRCUIT[rung]` for the opponent's kit, head start and flavour. Split it into
-a circuit setup and a versus setup. Make [satchelOf](src/lib/game.svelte.ts#L126)
-per-side — today it is `who === 'you' && hasRun()`, so Counting House scores wrong
-for the remote player. Turn the `machineOpen`/`machineStep` hand-off in
-[pass()](src/lib/game.svelte.ts#L534) into a pluggable driver: AI or remote.
+**2 — Prise the engine off the circuit.** *Done.* `beginMatch(setup)` seats two
+`SideSetup`s and knows nothing about where either came from; `startMatch()` builds
+one from the run and `startVersusMatch()` from a lobby and a seed. The satchel and
+both names are per-side state now, so Counting House scores correctly for whoever
+is sitting there and the bay calls people what they are called. The
+`machineOpen`/`machineStep` hand-off became a `Driver` — `MACHINE` plays the
+circuit, `REMOTE` is all no-ops because the person on the far end drives their own
+turn. `Bay` and `App` no longer reach for `RUN()` to find out who they are playing.
 
-**3 — Headless run.** Prove `lib/` executes with no DOM, no tray, no audio, and
-that a seed plus a command log reproduces a match exactly. This is the load-bearing
-test for the entire leaderboard, and it is worth writing before any network code.
+*Verified:* across all seven rungs × three loadouts × four seeds, the new seating
+deals a byte-identical loadout and leaves the stream on the same draw as the old
+code. Seating order (`you` then `them`) is load-bearing and commented as such — a
+foe's kit draws off the table stream.
+
+**3 — Headless run.** Half done. The pure modules — `rng`, `rules`, `cards`,
+`dice`, `circuit` — already run under bare Node with nothing but a resolver hook
+for extensionless imports, which is how stage 2 was checked. What is left is the
+runes: `game.svelte.ts` and `run.svelte.ts` need the Svelte compiler to execute,
+so the verifier either compiles them or the turn flow moves to a plain `.ts` core
+with the reactive wrapper on top. **Decide this before stage 6** — the verifier has
+to run this code, so the shape of it is the shape of the verifier.
+
+Then prove a seed plus a command log reproduces a match exactly. This is the
+load-bearing test for the entire leaderboard, and it is worth writing before any
+network code.
 
 **4 — The Worker.** Durable Object per match, join codes, command relay, the build
 hash handshake, D1 schema for the two boards.

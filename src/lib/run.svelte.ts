@@ -1,5 +1,6 @@
 import { CIRCUIT, SATCHEL_MAX } from './circuit';
 import { isCardId } from './cards';
+import { freshSeed, restoreTable, seedTable, tablePosition } from './rng';
 import { KEY_REC, KEY_RUN, STORE } from './storage';
 import type { CardId, RecordBook, Run } from './types';
 
@@ -28,8 +29,17 @@ export function hasRun(): boolean {
   return !!runState.run;
 }
 
+/**
+ * The stream's position rides along with the run, so it is written down
+ * wherever the run is. Note what this buys and what it costs: a match is only
+ * ever saved *before* it starts, so reloading mid-match re-deals it from the
+ * same page of the stream rather than a fresh one. The same cards come back.
+ * That is deliberate — it takes reload-scumming off the table.
+ */
 export function saveRun(): void {
-  if (runState.run) STORE.set(KEY_RUN, JSON.stringify(runState.run));
+  if (!runState.run) return;
+  runState.run.draws = tablePosition().draws;
+  STORE.set(KEY_RUN, JSON.stringify(runState.run));
 }
 
 export function saveRecord(): void {
@@ -37,7 +47,12 @@ export function saveRecord(): void {
 }
 
 export function newRun(): void {
-  runState.run = { rung: 0, purse: 0, souvenirs: [], hired: [], head: 0, active: true };
+  const seed = freshSeed();
+  seedTable(seed);
+  runState.run = {
+    rung: 0, purse: 0, souvenirs: [], hired: [], head: 0, active: true,
+    seed, draws: 0
+  };
   runState.record.runs++;
   saveRun();
   saveRecord();
@@ -79,6 +94,11 @@ export function loadSaved(): void {
         .filter((id): id is CardId => isCardId(id));
       run.head = Number(run.head) || 0;
       run.spent = !!run.spent;
+      // A run saved before the table was seeded gets a seed now. It loses
+      // nothing it ever had; it simply becomes replayable from here on.
+      run.seed = Number.isFinite(run.seed) ? (run.seed | 0) : freshSeed();
+      run.draws = Number(run.draws) || 0;
+      restoreTable(run.seed, run.draws);
       runState.run = run as Run;
     }
   } catch { runState.run = null; }

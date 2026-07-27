@@ -1,12 +1,10 @@
 <script lang="ts">
   import { card } from '../lib/cards';
-  import { CIRCUIT } from '../lib/circuit';
   import {
     bankOf, chooseDraft, doBank, doRoll, enterRuin, enterSpoils, nudgeTray,
     S, tryCharge, ui
   } from '../lib/game.svelte';
   import { bringIntoView, reduced, replay } from '../lib/motion';
-  import { RUN } from '../lib/run.svelte';
   import type { ChargeId } from '../lib/types';
   import Feed from './Feed.svelte';
   import Hand from './Hand.svelte';
@@ -27,7 +25,7 @@
   ui.scrollToVerdict = () => bringIntoView(verdictEl);
 
   const mine = $derived(S.turn === 'you' && !S.busy && !S.over && !S.draft);
-  const oppName = $derived(CIRCUIT[RUN().rung].name);
+  const oppName = $derived(S.names.them);
 
   const note = $derived.by(() => {
     if (S.lost !== null) return S.lostNote;

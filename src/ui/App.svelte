@@ -2,7 +2,7 @@
   import { CIRCUIT } from '../lib/circuit';
   import { S, showHelp, syncScores } from '../lib/game.svelte';
   import { replay } from '../lib/motion';
-  import { RUN } from '../lib/run.svelte';
+  import { hasRun, RUN } from '../lib/run.svelte';
   import Bay from './Bay.svelte';
   import Curtain from './Curtain.svelte';
   import Dev from './Dev.svelte';
@@ -17,8 +17,11 @@
 
   let sheetEl: HTMLDivElement;
 
-  const run = $derived(RUN());
-  const opp = $derived(CIRCUIT[run.rung]);
+  /* A versus match has no run behind it, so the masthead says where you are
+     only when there is a rung to be on. Both sides are named from the game
+     state either way — the board does not ask the circuit who is sitting
+     opposite. */
+  const run = $derived(hasRun() ? RUN() : null);
 
   /* Ease the printed balances whenever a real one moves. */
   $effect(() => {
@@ -40,8 +43,12 @@
   <header class="topbar">
     <h1>Pig</h1>
     <span class="topbar__where">
-      Rung <b>{run.rung + 1}</b>/{CIRCUIT.length}
-      {#if run.purse}<span class="topbar__purse">purse <b>{run.purse}</b></span>{/if}
+      {#if run}
+        Rung <b>{run.rung + 1}</b>/{CIRCUIT.length}
+        {#if run.purse}<span class="topbar__purse">purse <b>{run.purse}</b></span>{/if}
+      {:else}
+        {S.names.you} v {S.names.them}
+      {/if}
     </span>
     <span class="topbar__gap"></span>
     <button class="linkbtn" onclick={showHelp}>How to play</button>
@@ -50,9 +57,9 @@
 
   <div class="board">
     <div class="score">
-      <Scoreline side="you" name="You" />
+      <Scoreline side="you" name={S.names.you} />
       <span class="score__goal">100</span>
-      <Scoreline side="them" name={opp.name} />
+      <Scoreline side="them" name={S.names.them} />
     </div>
     <Bay />
   </div>

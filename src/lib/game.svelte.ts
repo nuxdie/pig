@@ -6,7 +6,7 @@ import { card, CARDS } from './cards';
 import { CIRCUIT, GOAL, MARKET, MILES, TIER_OF, WARM_CAP } from './circuit';
 import { bestSlot, DICE } from './dice';
 import { reduced } from './motion';
-import { mulberry32, pick, throwSeed } from './rng';
+import { mulberry32, pick, seedTable, throwSeed } from './rng';
 import {
   bankValue, chargeIndex, chargeUsable, consumeShield, drawKit, equip, hasCharge,
   loadoutIds, newPlayer, offerFor, partsText, pendingMilestone, usable
@@ -48,6 +48,12 @@ export type Screen =
 
 export interface GameState {
   p: Record<Side, Player>;
+  /** What the bay calls each side. 'The machine' on the circuit, a person's
+   *  name across a wire — the engine never assumes which. */
+  names: Record<Side, string>;
+  /** How many souvenirs each side is carrying, which is all Counting House
+   *  needs to know. Used to be your run's satchel and a flat 2 for the foe. */
+  satchel: Record<Side, number>;
   turn: Side;
   line: number;
   rolls: number;
@@ -72,6 +78,8 @@ export interface GameState {
 function blank(): GameState {
   return {
     p: { you: newPlayer(), them: newPlayer() },
+    names: { you: 'You', them: 'The machine' },
+    satchel: { you: 0, them: 2 },
     turn: 'you', line: 0, rolls: 0, lost: null, lostNote: '', lostGood: false,
     slot: [0, 0, 0], winner: null, busy: false, over: false,
     draft: null, log: 'Your turn. Roll to open a line.',
@@ -123,12 +131,11 @@ export function say(html: string): void { S.log = html; }
 
 export function other(who: Side): Side { return who === 'you' ? 'them' : 'you'; }
 
-function satchelOf(who: Side): number {
-  return who === 'you' && hasRun() ? RUN().souvenirs.length : 2;
-}
+/** What the bay calls a side, as the subject of a sentence. */
+export function nameOf(who: Side): string { return S.names[who]; }
 
 export function bankOf(who: Side, line: number, doubled: boolean) {
-  return bankValue(S.p[who], line, doubled, satchelOf(who));
+  return bankValue(S.p[who], line, doubled, S.satchel[who]);
 }
 
 function addEntry(who: Side, kind: EntryKind, amt: number, bal: number, note?: string): void {
@@ -200,38 +207,104 @@ function reset(): void {
   mountTray('you');
 }
 
+/** One seat at the table, said in terms the engine can act on. Where the
+ *  cards came from — a satchel, a market, a foe's kit, a lobby — is the
+ *  caller's business and stops at this boundary. */
+export interface SideSetup {
+  name: string;
+  /** Held up front: souvenirs, hires, whatever was brought to the table. */
+  cards: CardId[];
+  /** Drawn at random from these tiers. Only a circuit foe has one. */
+  kit?: Tier[];
+  /** Always carried, if it is legal for them. */
+  fixed?: CardId;
+  head: number;
+  satchel: number;
+}
+
+export interface MatchSetup {
+  you: SideSetup;
+  them: SideSetup;
+  /** Who plays `them` once the pen crosses over. */
+  driver: Driver;
+  opening: string;
+}
+
+function seat(who: Side, s: SideSetup): void {
+  const P = S.p[who];
+  S.names[who] = s.name;
+  S.satchel[who] = s.satchel;
+
+  equip(P, s.cards);
+  (s.kit || []).forEach((tier) => {
+    const id = drawKit(P, tier);
+    if (id) equip(P, [id]);
+  });
+  const fixed = card(s.fixed);
+  if (fixed && usable(fixed, P)) equip(P, [fixed.id]);
+
+  if (s.head > 0) {
+    P.score = s.head;
+    S.disp[who] = s.head;
+    addEntry(who, 'start', s.head, s.head);
+    // a head start is compensation, not a shortcut to free drafts
+    MILES.forEach((m) => { if (m <= s.head) P.claimed[m] = true; });
+  }
+}
+
+/**
+ * Sit two sides down and open the match.
+ *
+ * Seating order is `you` then `them`, and it is load-bearing: seating draws
+ * a foe's kit off the table stream, so swapping these two lines deals a
+ * different game. See the ordering contract in rng.ts.
+ */
+export function beginMatch(setup: MatchSetup): void {
+  reset();
+  setDriver(setup.driver);
+  seat('you', setup.you);
+  seat('them', setup.them);
+  mountTray('you');
+  retune();
+  say(setup.opening);
+}
+
+/** The circuit: your run against the foe on this rung, played by the machine. */
 export function startMatch(): void {
   const run = RUN();
   const opp = CIRCUIT[run.rung];
-  reset();
-
-  equip(S.p.you, run.souvenirs);
-  equip(S.p.you, run.hired || []);
-  if (run.head > 0) {
-    S.p.you.score = run.head;
-    S.disp.you = run.head;
-    addEntry('you', 'start', run.head, run.head);
-    MILES.forEach((m) => { if (m <= run.head) S.p.you.claimed[m] = true; });
-  }
-
-  (opp.kit || []).forEach((tier) => {
-    const id = drawKit(S.p.them, tier);
-    if (id) equip(S.p.them, [id]);
+  beginMatch({
+    you: {
+      name: 'You',
+      cards: run.souvenirs.concat(run.hired || []),
+      head: run.head,
+      satchel: run.souvenirs.length
+    },
+    them: {
+      name: opp.name,
+      cards: [],
+      kit: opp.kit || [],
+      fixed: opp.fixed,
+      head: opp.head,
+      // What the foe is assumed to be carrying, for Counting House's sake.
+      satchel: 2
+    },
+    driver: MACHINE,
+    opening: 'Rung ' + (run.rung + 1) + ' — <b class="up">' + opp.name + '</b>. ' + opp.note
   });
-  const fixed = card(opp.fixed);
-  if (fixed && usable(fixed, S.p.them)) equip(S.p.them, [fixed.id]);
+}
 
-  if (opp.head > 0) {
-    S.p.them.score = opp.head;
-    S.disp.them = opp.head;
-    addEntry('them', 'start', opp.head, opp.head);
-    // a head start is compensation, not a shortcut to free drafts
-    MILES.forEach((m) => { if (m <= opp.head) S.p.them.claimed[m] = true; });
-  }
-
-  mountTray('you');
-  retune();
-  say('Rung ' + (run.rung + 1) + ' — <b class="up">' + opp.name + '</b>. ' + opp.note);
+/**
+ * A person on the other end of a wire. Both sides call this with the same
+ * setup and the same seed, and from here the two tables agree because
+ * nothing either engine does is its own idea.
+ *
+ * Note the board still shows a rung and a purse it will not have here —
+ * the versus masthead is stage 7. The engine is ready before the screen is.
+ */
+export function startVersusMatch(setup: Omit<MatchSetup, 'driver'>, seed: number): void {
+  seedTable(seed);
+  beginMatch({ ...setup, driver: REMOTE });
 }
 
 /* ---------------------------- rolling ---------------------------- */
@@ -340,15 +413,7 @@ function openDraft(who: Side, milestone: Milestone, done: () => void): void {
   stampIt(who, String(milestone), 'blue');
   S.draft = { who, tier, milestone, offer, chosen: null, done };
 
-  if (who === 'them') {
-    let want = offer[0];
-    let best = -1e9;
-    offer.forEach((c) => {
-      const v = machineValue(c, P, S.p.you);
-      if (v > best) { best = v; want = c; }
-    });
-    setTimeout(() => { chooseDraft(offer.indexOf(want)); }, 1600);
-  }
+  if (who === 'them') driver.draft(offer);
 }
 
 /* ---- seams the dev panel reaches through. Nothing else calls these. ---- */
@@ -372,7 +437,7 @@ export function chooseDraft(i: number): void {
   d.chosen = i;
   play('take');
   grant(d.who, c);
-  say((d.who === 'you' ? 'You take ' : 'The machine takes ') + '<b class="up">' + c.name + '</b>. ' + c.desc);
+  say(S.names[d.who] + (d.who === 'you' ? ' take ' : ' takes ') + '<b class="up">' + c.name + '</b>. ' + c.desc);
 
   setTimeout(() => {
     S.draft = null;
@@ -390,7 +455,7 @@ function afterScore(who: Side, next: () => void): void {
 
 function resolve(who: Side, vals: number[], after?: () => void): void {
   const P = S.p[who];
-  const name = who === 'you' ? 'You' : 'The machine';
+  const name = S.names[who];
   const verb = who === 'you' ? 'roll' : 'rolls';
   let ones = 0;
   let sum = 0;
@@ -500,7 +565,7 @@ function bank(who: Side, opts: BankOpts = {}): void {
   S.line = 0; S.rolls = 0;
   play(opts.double ? 'warlord' : 'bank');
   if (!reduced) S.fx.pop[who]++;
-  const name = who === 'you' ? 'You' : 'The machine';
+  const name = S.names[who];
 
   if (P.score >= GOAL) { finish(who); return; }
 
@@ -513,7 +578,7 @@ function bank(who: Side, opts: BankOpts = {}): void {
       if (opts.again) {
         S.busy = false; P.warmUsed = false; S.lost = null;
         say(name + ' take' + (who === 'you' ? '' : 's') + ' another turn.');
-        if (who === 'them') setTimeout(machineStep, 700);
+        themGoOn(who, 700);
       } else { pass(who); }
     });
   }, 850);
@@ -536,8 +601,8 @@ function pass(who: Side): void {
   if (S.turn === 'them') {
     S.busy = true;
     setTimeout(() => {
-      say('The machine takes the pen.');
-      setTimeout(machineOpen, 800);
+      say(S.names.them + ' takes the pen.');
+      driver.open();
     }, 420);
   } else {
     S.busy = false;
@@ -549,7 +614,7 @@ function finish(winner: Side): void {
   S.over = true; S.busy = false; S.winner = winner; S.lost = null; S.draft = null;
   play(winner === 'you' ? 'win' : 'lose');
   stampIt(winner, 'SETTLED', 'good');
-  say(winner === 'you' ? 'You reached 100 first.' : 'The machine reached 100 first.');
+  say(S.names[winner] + ' reached ' + GOAL + ' first.');
   ui.scrollToVerdict();
   ui.focusAgain();
   setTimeout(() => {
@@ -569,14 +634,14 @@ function playCharge(who: Side, i: number): boolean {
   if (P.warded) {
     P.warded = false; ch.spent = true;
     play('ward');
-    say((who === 'you' ? 'Your ' : "The machine's ") + '<b>' + c.name + '</b> is warded — spent, and nothing happens.');
+    say((who === 'you' ? 'Your ' : S.names.them + '’s ') + '<b>' + c.name + '</b> is warded — spent, and nothing happens.');
     S.busy = true;
-    setTimeout(() => { S.busy = false; if (who === 'them') machineStep(); }, 1100);
+    setTimeout(() => { S.busy = false; themGoOn(who, 0); }, 1100);
     return true;
   }
 
   ch.spent = true;
-  const name = who === 'you' ? 'You' : 'The machine';
+  const name = S.names[who];
 
   if (ch.id === 'levy') {
     const take = Math.min(8, O.score);
@@ -588,7 +653,7 @@ function playCharge(who: Side, i: number): boolean {
     S.busy = true;
     if (P.score >= GOAL) { setTimeout(() => { finish(who); }, 900); return true; }
     setTimeout(() => {
-      afterScore(who, () => { S.busy = false; if (who === 'them') machineStep(); });
+      afterScore(who, () => { S.busy = false; themGoOn(who, 0); });
     }, 1000);
     return true;
   }
@@ -598,7 +663,7 @@ function playCharge(who: Side, i: number): boolean {
     play('ward');
     say('<b class="up">Ward</b> — the next card the other side plays will do nothing.');
     S.busy = true;
-    setTimeout(() => { S.busy = false; if (who === 'them') machineStep(); }, 1000);
+    setTimeout(() => { S.busy = false; themGoOn(who, 0); }, 1000);
     return true;
   }
 
@@ -606,7 +671,7 @@ function playCharge(who: Side, i: number): boolean {
     P.quill = true;
     flare(who, 'quill', 'set');
     say('<b class="up">Quill</b> is inked. The next roll counts twice.');
-    if (who === 'them') setTimeout(machineStep, 700);
+    themGoOn(who, 700);
     return true;
   }
 
@@ -616,7 +681,7 @@ function playCharge(who: Side, i: number): boolean {
     flare(who, 'bellows', '×2');
     say('<b class="up">Bellows</b> — the line swells from ' + before + ' to ' + S.line + '. Still unbanked.');
     if (!reduced) S.fx.bump++;
-    if (who === 'them') setTimeout(machineStep, 800);
+    themGoOn(who, 800);
     return true;
   }
 
@@ -630,7 +695,7 @@ function playCharge(who: Side, i: number): boolean {
     S.busy = true;
     if (P.score >= GOAL) { setTimeout(() => { finish(who); }, 900); return true; }
     setTimeout(() => {
-      afterScore(who, () => { S.busy = false; if (who === 'them') machineStep(); });
+      afterScore(who, () => { S.busy = false; themGoOn(who, 0); });
     }, 1000);
     return true;
   }
@@ -639,7 +704,7 @@ function playCharge(who: Side, i: number): boolean {
     P.transmute = true;
     play('transmute');
     say('<b class="up">Transmute</b> is set. On the next roll every 1 becomes a highest face.');
-    if (who === 'them') setTimeout(machineStep, 700);
+    themGoOn(who, 700);
     return true;
   }
 
@@ -678,6 +743,57 @@ export function tryCharge(id: ChargeId): void {
       return;
     }
   }
+}
+
+/* ---------------------------- who plays `them` ----------------------------
+   The engine never knew it was playing a machine — it only knew that when
+   the pen was on the far side of the table, something over there would act.
+   That something is a driver. The circuit hands it the machine; a versus
+   match hands it a wire, and every hook below becomes a no-op, because the
+   person on the other end drives their own turn and their commands arrive
+   as ordinary calls to roll, bank and play.
+   ========================================================================= */
+
+export interface Driver {
+  /** The pen has just reached them. */
+  open(): void;
+  /** Their turn goes on — after a card, or a roll that stood. */
+  resume(delay: number): void;
+  /** A draft has opened on their side and is waiting on a choice. */
+  draft(offer: Card[]): void;
+}
+
+const MACHINE: Driver = {
+  open: () => { setTimeout(machineOpen, 800); },
+  resume: (delay) => {
+    if (delay > 0) setTimeout(machineStep, delay); else machineStep();
+  },
+  draft: (offer) => {
+    const P = S.p.them;
+    let want = offer[0];
+    let best = -1e9;
+    offer.forEach((c) => {
+      const v = machineValue(c, P, S.p.you);
+      if (v > best) { best = v; want = c; }
+    });
+    setTimeout(() => { chooseDraft(offer.indexOf(want)); }, 1600);
+  }
+};
+
+/** Nobody home: the far side is driven from outside, by arriving commands. */
+export const REMOTE: Driver = {
+  open: () => {},
+  resume: () => {},
+  draft: () => {}
+};
+
+let driver: Driver = MACHINE;
+
+export function setDriver(d: Driver): void { driver = d; }
+
+/** Their turn continues, however it is that they play. */
+function themGoOn(who: Side, delay: number): void {
+  if (who === 'them') driver.resume(delay);
 }
 
 /* ---------------------------- the machine ---------------------------- */
