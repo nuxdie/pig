@@ -6,7 +6,7 @@
 .tray{
   position:relative;
   width:100%;
-  height:clamp(168px,18vw,204px);
+  height:clamp(200px,22vw,264px);
   margin:2px 0 6px;
   touch-action:none;
 }

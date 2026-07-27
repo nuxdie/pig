@@ -1,5 +1,5 @@
 import { play } from '../audio/sfx';
-import { retune, setTensionSource } from '../audio/music';
+import { retune, setTableSource } from '../audio/music';
 import type { ThrowSide, Tray } from '../dice/dice3d';
 import { machineValue, machineWantsRoll } from './ai';
 import { card, CARDS } from './cards';
@@ -104,10 +104,17 @@ export function setTray(t: Tray | null): void {
 
 export function nudgeTray(on: boolean): void { tray?.nudge(on); }
 
-setTensionSource(() => {
+/* What the score is allowed to know about the game: how close it is, whose
+   pen it is, and how much is riding on the dice. The arrangement is mixed
+   from those three and nothing else. */
+setTableSource(() => {
   let t = Math.max(S.p.you.score, S.p.them.score) / GOAL;
   if (S.line >= 18) t += 0.16;
-  return Math.min(1, t);
+  return {
+    tension: Math.min(1, t),
+    theirs: S.turn === 'them' && !S.over,
+    line: S.line
+  };
 });
 
 /* ---------------------------- small helpers ---------------------------- */

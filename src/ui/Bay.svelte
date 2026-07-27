@@ -10,6 +10,7 @@
   import { RUN } from '../lib/run.svelte';
   import type { ChargeId } from '../lib/types';
   import Draft from './Draft.svelte';
+  import Feed from './Feed.svelte';
   import Icon from './Icon.svelte';
   import Tray from './Tray.svelte';
   import { toggleMute } from './mixer.svelte';
@@ -27,14 +28,6 @@
 
   const mine = $derived(S.turn === 'you' && !S.busy && !S.over && !S.draft);
   const oppName = $derived(CIRCUIT[RUN().rung].name);
-
-  const whose = $derived.by(() => {
-    if (S.over) return { cls: S.winner === 'you' ? 'is-win' : 'is-loss',
-                         text: S.winner === 'you' ? 'You win' : oppName + ' wins' };
-    if (S.draft) return { cls: 'is-' + S.draft.tier, text: S.draft.tier + ' draft' };
-    if (S.turn === 'you') return { cls: '', text: '◀ Your turn' };
-    return { cls: 'is-them', text: 'Their turn ▶' };
-  });
 
   const note = $derived.by(() => {
     if (S.lost !== null) return S.lostNote;
@@ -138,8 +131,8 @@
 
 <svelte:window onkeydown={onKeydown} />
 
-<section class="bay">
-  <div class="whose {whose.cls}">{whose.text}</div>
+<section class="bay" class:is-theirs={S.turn === 'them' && !S.over}>
+  <Feed />
 
   <div class="verdict {S.over ? 'is-on verdict--' + (S.winner === 'you' ? 'win' : 'loss') : ''}"
        role="status" bind:this={verdictEl}>
@@ -170,13 +163,13 @@
   </div>
 
   <div class="online">
-    <div class="online__lab">On the line</div>
     <div
       class="online__num {S.lost !== null
         ? (S.lostGood ? 'is-saved' : 'is-lost')
         : (S.line > 0 && !S.over ? (S.turn === 'you' ? 'is-you' : 'is-them') : '')}"
       bind:this={totalEl}
     >{S.lost !== null ? S.lost : S.line}</div>
+    <div class="online__lab">on the line</div>
     <div class="online__note">{note}</div>
   </div>
 

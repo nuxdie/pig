@@ -4,22 +4,21 @@
   import { replay } from '../lib/motion';
   import { RUN } from '../lib/run.svelte';
   import Bay from './Bay.svelte';
-  import Column from './Column.svelte';
   import Curtain from './Curtain.svelte';
   import Dev from './Dev.svelte';
   import Fullscreen from './Fullscreen.svelte';
-  import Mixer from './Mixer.svelte';
   import Peek from './Peek.svelte';
+  import Scoreline from './Scoreline.svelte';
+  import Sound from './Sound.svelte';
+
+  /* One column, and the dice at the middle of it. Everything a turn needs
+     is between the two balances and the two buttons; everything else was
+     asked to leave. */
 
   let sheetEl: HTMLDivElement;
 
   const run = $derived(RUN());
   const opp = $derived(CIRCUIT[run.rung]);
-
-  const youSub = $derived(
-    run.purse ? `Purse at risk <b>${run.purse}</b>` : 'Nothing in the purse yet'
-  );
-  const oppSub = $derived(opp.note + (opp.head ? ` Starts on ${opp.head}.` : ''));
 
   /* Ease the printed balances whenever a real one moves. */
   $effect(() => {
@@ -37,19 +36,24 @@
 <Dev />
 
 <div class="sheet" bind:this={sheetEl}>
-  <header class="masthead">
+  <header class="topbar">
     <h1>Pig</h1>
-    <p class="masthead__sub">
-      <span>The Circuit — rung <b>{run.rung + 1} of {CIRCUIT.length}</b></span>
-      <button class="linkbtn" onclick={showHelp}>How to play</button>
-      <Fullscreen />
-    </p>
-    <Mixer />
+    <span class="topbar__where">
+      Rung <b>{run.rung + 1}</b>/{CIRCUIT.length}
+      {#if run.purse}<span class="topbar__purse">purse <b>{run.purse}</b></span>{/if}
+    </span>
+    <span class="topbar__gap"></span>
+    <button class="linkbtn" onclick={showHelp}>How to play</button>
+    <Fullscreen />
+    <Sound />
   </header>
 
   <div class="board">
-    <Column side="you" name="You" sub={youSub} />
+    <div class="score">
+      <Scoreline side="you" name="You" />
+      <span class="score__goal">100</span>
+      <Scoreline side="them" name={opp.name} />
+    </div>
     <Bay />
-    <Column side="them" name={opp.name} sub={oppSub} />
   </div>
 </div>

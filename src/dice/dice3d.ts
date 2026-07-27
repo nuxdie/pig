@@ -105,7 +105,9 @@ export class Tray {
       const restPos = new Vector3(
         (i - (n - 1) / 2) * 1.65,
         0.5,
-        0.35
+        // forward of centre: the camera frames the whole tray, and the middle
+        // of that frame is nearer the player than the middle of the tray
+        0.85
       );
       const rest = restQuaternion(slot, (i - 1) * 0.28);
       group.position.copy(restPos);

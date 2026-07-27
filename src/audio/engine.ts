@@ -9,6 +9,7 @@ interface Rig {
   sfx: GainNode | null;
   sfxSend: GainNode | null;
   mus: GainNode | null;
+  musComp: DynamicsCompressorNode | null;
   musSend: GainNode | null;
   verb: ConvolverNode | null;
   verbOut: GainNode | null;
@@ -31,7 +32,7 @@ export interface Chord {
 }
 
 export const A: Rig = {
-  ctx: null, master: null, sfx: null, sfxSend: null, mus: null, musSend: null,
+  ctx: null, master: null, sfx: null, sfxSend: null, mus: null, musComp: null, musSend: null,
   verb: null, verbOut: null, delay: null,
   sfxLevel: 0.8, musLevel: 0.5,
   playing: false, timer: null, step: 0, next: 0, bpm: 61, chord: null
@@ -80,7 +81,18 @@ export function audio(): AudioContext | null {
   A.verb.connect(warm); warm.connect(A.verbOut); A.verbOut.connect(A.master);
   A.sfx = ctx.createGain(); A.sfx.gain.value = A.sfxLevel; A.sfx.connect(A.master);
   A.sfxSend = ctx.createGain(); A.sfxSend.gain.value = 0.22; A.sfxSend.connect(A.verb);
-  A.mus = ctx.createGain(); A.mus.gain.value = 0; A.mus.connect(A.master);
+  // The score runs through a compressor: it glues five voices that know
+  // nothing about each other into one instrument, and it means the levels
+  // below can be set for how the thing should sound rather than for the
+  // worst bar in the song.
+  A.musComp = ctx.createDynamicsCompressor();
+  A.musComp.threshold.value = -20;
+  A.musComp.knee.value = 14;
+  A.musComp.ratio.value = 3.5;
+  A.musComp.attack.value = 0.008;
+  A.musComp.release.value = 0.26;
+  A.musComp.connect(A.master);
+  A.mus = ctx.createGain(); A.mus.gain.value = 0; A.mus.connect(A.musComp);
   A.musSend = ctx.createGain(); A.musSend.gain.value = 0.42; A.musSend.connect(A.verb);
   A.delay = ctx.createDelay(1.2); A.delay.delayTime.value = 60 / A.bpm * 0.75;
   const fb = ctx.createGain(); fb.gain.value = 0.33;

@@ -203,17 +203,7 @@ kbd{
 .masthead__sub b.bad{color:var(--red)}
 .masthead__sub b.mile{color:var(--good)}
 
-.mixer{flex:0 0 auto;display:flex;flex-direction:column;gap:7px;margin-bottom:4px}
-.mixer__row{display:flex;align-items:center;gap:9px}
-.mixer__row label{
-  font-family:var(--mono);font-size:10px;letter-spacing:.18em;
-  text-transform:uppercase;color:var(--ink-soft);width:5.4em;
-}
-.mixer__hint{
-  font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--pencil);text-align:right;
-}
-input[type=range]{-webkit-appearance:none;appearance:none;width:84px;height:14px;background:none;cursor:pointer}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:14px;background:none;cursor:pointer}
 input[type=range]::-webkit-slider-runnable-track{height:3px;background:var(--rule)}
 input[type=range]::-moz-range-track{height:3px;background:var(--rule)}
 input[type=range]::-webkit-slider-thumb{

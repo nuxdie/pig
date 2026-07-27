@@ -3,48 +3,29 @@
    ===================================================================== */
 @media (max-width:820px){
   .sheet{padding:12px 12px 22px}
-  .masthead{gap:6px 12px;padding-bottom:9px;margin-bottom:11px;align-items:center}
-  .masthead h1{font-size:30px;flex:1 1 auto}
-  .rules{flex:0 0 100%;order:3;margin-bottom:0}
-  .rules summary{display:block}
-  .rules[open] summary{margin-bottom:6px}
-  .masthead__sub{font-size:13px;line-height:1.45}
-  .mixer{flex-direction:row;gap:11px;margin-bottom:0;flex:0 0 auto}
-  .mixer__row{gap:6px}
-  .mixer__row label{width:auto;font-size:9px;letter-spacing:.1em}
-  .mixer__hint{display:none}
-  input[type=range]{width:58px}
+  .topbar{gap:4px 10px;margin-bottom:9px}
+  .topbar__where{flex:0 0 auto}
 
-  .board{grid-template-columns:1fr 1fr;grid-template-areas:"you them" "bay bay";gap:9px}
-  .col{padding:7px 8px 9px}
-  .col__name{font-size:10px;letter-spacing:.14em;padding-bottom:4px}
-  .col__sub{font-size:10.5px;margin-top:4px;min-height:2.4em}
-  .col__turnflag{font-size:7.5px;padding:2px 4px;letter-spacing:.1em}
-  .col__head{font-size:9px;padding:4px 0 3px}
-  .lines{height:72px}
-  .entry{font-size:13px;padding:3px 0}
-  .entry__no{font-size:10px}
-  .col__total{margin-top:6px;padding-top:6px}
-  .col__totallab{font-size:9px;letter-spacing:.12em}
-  .col__totalnum{font-size:25px}
-  .col__pending{font-size:11px}
-  .loadout{min-height:0;margin-top:7px;gap:2px}
+  .score{gap:8px}
+  .score__goal{display:none}
+  .side__name{font-size:9.5px;letter-spacing:.14em}
+  .side__hand{
+    min-height:0;gap:3px;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
+    padding-bottom:2px;scrollbar-width:none;
+  }
+  .side__hand::-webkit-scrollbar{display:none}
+  .side--them .side__hand{flex-direction:row-reverse}
   .mini{width:32px;height:45px;padding:9px 1px 3px}
   .mini__art{width:16px;height:16px}
   .mini__lab{font-size:5.8px}
-  .stamp{font-size:22px;border-width:3px;inset:30% 0 auto 0}
 
-  .bay{gap:9px;padding:11px}
-  .whose{width:calc(100% + 22px);margin:-11px -11px 0;padding:9px 8px;font-size:11px;letter-spacing:.18em}
-  /* the dice have to be legible at arm's length on a phone, so the tray gets
-     the height before anything else in the bay does */
-  .tray{height:clamp(146px,36vw,182px)}
-  .online__lab{font-size:9px}
-  .online__num{font-size:40px}
-  .online__note{font-size:11px}
-  .btn{padding:15px 6px;font-size:12px}
+  .bay{padding:11px;gap:9px}
+  .tray{height:clamp(168px,44vw,236px)}
+  .feed{top:5px;right:6px}
+  .feed__row{font-size:10px;padding:2px 6px}
+  .controls .btn{padding:19px 6px;font-size:14px}
   .btn--charge{padding:9px 6px;font-size:10px}
-  .log{font-size:13px;min-height:2.6em;padding-top:8px;line-height:1.4}
+  .log{font-size:12.5px;min-height:2.6em}
 }
 
 @media (max-width:560px){
@@ -68,9 +49,7 @@
 }
 
 @media (max-width:380px){
-  .tray{height:136px}
-  .col__totalnum{font-size:22px}
-  .lines{height:60px}
+  .tray{height:162px}
   .mini{width:29px;height:41px}
 }
 @media (prefers-reduced-motion:reduce){

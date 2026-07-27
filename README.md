@@ -39,7 +39,9 @@ src/
   audio/
     engine.ts          context, reverb, delay, tone/bell/knock primitives
     sfx.ts             one signature per card, built from the playing chord
-    music.ts           the generative score and each foe's leitmotif
+    instruments.ts     five voices: pad, bass, lead, arp, bell
+    song.ts            written patterns, in scale degrees, and an order
+    music.ts           the tracker: steps the song, mixes it against play
   dice/                the tray — WebGL and rigid-body physics
     solver.ts          Rapier world, the throw, trajectory recording
     scene.ts           renderer, camera fitted to the tray, lights, floor
@@ -50,16 +52,18 @@ src/
     dice3d.ts          the Tray: mount, throw, drag-to-inspect
     preview.ts         the die turning over on its own card
   ui/                  Svelte components
-    App.svelte         masthead + board
-    Column.svelte      one player's ledger, meter, loadout, stamp
-    Bay.svelte         tray, controls, charges, flares, verdict, keyboard
+    App.svelte         top bar + board
+    Scoreline.svelte   one player's balance, meter, hand, stamp
+    Bay.svelte         tray, the line, controls, charges, verdict, keyboard
+    Feed.svelte        scoring events, passing by
+    Dev.svelte         devmode: stages, cheats, every card, every die
     Draft.svelte       the three cards on offer
     Curtain.svelte     every screen that is not the board
     screens/           intro, circuit, market, spoils, walked, ruin
   styles/              the original stylesheet, split by concern
 ```
 
-### Four deliberate choices
+### Five deliberate choices
 
 **The dice are the random number generator.** A roll is one rigid-body
 simulation, and whichever face comes up *is* what was rolled — nothing picks a
@@ -101,6 +105,13 @@ animation loop. Svelte hands it an element and otherwise stays out of the way;
 and the physics wasm arrive as a separate chunk while the player is reading the
 intro — and the game is fully playable before they land.
 
+**The middle is the game.** The board was three columns — your ledger, the
+table, theirs — and two of them were history. Almost nobody reads a ledger,
+and it was costing two thirds of the screen. What is left is what a turn
+actually needs: two balances, two meters, the dice, the line, and the two
+buttons. The ledger is a feed now, over the corner of the table, gone by the
+time you next need the space. Nothing that reports a number reports it twice.
+
 **The stylesheets are global, not scoped.** Card faces and icons are injected
 with `{@html}`, and Svelte's style scoping would silently drop any rule that
 matches them. The CSS is split by concern into `styles/` and imported from
@@ -110,3 +121,7 @@ matches them. The CSS is split by concern into `styles/` and imported from
 
 Space rolls, `B` banks, `1`/`2`/`3` take a card at a draft, `M` mutes.
 Charges have their own keys, printed on their buttons.
+
+Backtick opens devmode — jump to any rung, hand yourself any card or die,
+move either score, force a draft, look at every card and every die at once.
+It only exists in a dev build or on a URL carrying `?dev`.

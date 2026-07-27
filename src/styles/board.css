@@ -1,9 +1,72 @@
-/* ---------- board ---------- */
+/* ---------- board ----------
+   One column. The scoreline on top, the dice under it, and nothing beside
+   either of them — the three-column ledger layout spent two thirds of the
+   screen on history nobody read. */
 .board{
-  display:grid;
-  grid-template-columns:minmax(190px,0.78fr) minmax(360px,1.55fr) minmax(190px,0.78fr);
-  grid-template-areas:"you bay them";
-  gap:clamp(10px,1.8vw,22px);align-items:start;
-  max-width:1280px;margin:0 auto;
+  max-width:820px;margin:0 auto;
+  display:flex;flex-direction:column;gap:clamp(10px,1.8vw,16px);
 }
 
+/* ---------- the scoreline ---------- */
+.score{
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:start;gap:clamp(10px,3vw,26px);
+}
+.score__goal{
+  align-self:center;font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+  color:var(--pencil);padding-top:26px;
+}
+
+.side{
+  position:relative;min-width:0;
+  transition:opacity .35s, filter .35s;
+}
+.side--them{text-align:right}
+.side.is-off{opacity:.38;filter:saturate(.15)}
+
+.side__name{
+  display:flex;align-items:baseline;gap:6px;
+  font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ink-soft);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.side--them .side__name{justify-content:flex-end}
+.side__pen{color:var(--ink);opacity:0;transition:opacity .3s}
+.side--them .side__pen{color:var(--stamp)}
+.side.is-active .side__pen{opacity:1;animation:breathe 2.6s ease-in-out infinite}
+.side.is-active .side__name{color:var(--ink)}
+@keyframes breathe{50%{opacity:.4}}
+
+.side__figures{display:flex;align-items:baseline;gap:9px;line-height:.9}
+.side--them .side__figures{justify-content:flex-end}
+.side__num{
+  font-family:var(--mono);font-weight:700;
+  font-size:clamp(44px,10vw,76px);letter-spacing:-.02em;display:inline-block;
+}
+.side--them .side__num{color:var(--stamp)}
+.side__num.is-pop{animation:pop .45s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.22)}100%{transform:scale(1)}}
+/* what banking right now would make it */
+.side__gain{
+  font-family:var(--mono);font-size:clamp(15px,2.6vw,21px);font-weight:700;
+  color:var(--good);opacity:0;transform:translateY(-4px);
+  transition:opacity .22s, transform .22s;white-space:nowrap;
+}
+.side__gain.is-on{opacity:1;transform:none}
+
+.meter{height:7px;background:var(--rule-soft);margin-top:9px;position:relative;overflow:hidden}
+.meter__fill{position:absolute;top:0;bottom:0;left:0;background:var(--ink);width:0}
+.side--them .meter__fill{background:var(--stamp)}
+.meter__ghost{
+  position:absolute;top:0;bottom:0;left:0;width:0;opacity:.55;
+  background:repeating-linear-gradient(45deg, var(--good) 0 2px, transparent 2px 5px);
+  transition:width .22s ease-out, left .22s ease-out;
+}
+.notch{position:absolute;top:-2px;bottom:-2px;width:2px;opacity:.7;transition:opacity .3s, width .3s}
+.notch--tin{background:var(--tin)}
+.notch--silver{background:var(--silver)}
+.notch--gold{background:var(--gold)}
+.notch.is-hit{opacity:1;width:3px;box-shadow:0 0 0 1px rgba(255,255,255,.55)}
+
+.side__hand{display:flex;flex-wrap:wrap;gap:4px;margin-top:9px;min-height:50px}
+.side--them .side__hand{justify-content:flex-end}

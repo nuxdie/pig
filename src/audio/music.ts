@@ -1,18 +1,32 @@
 import { hasRun, runState } from '../lib/run.svelte';
-import { A, audio, outMus, POOL, PROG, type Chord } from './engine';
+import { A, audio, PROG, type Chord } from './engine';
+import { playNote, type Inst } from './instruments';
+import { barsOf, hz, ORDER, PATTERNS, R } from './song';
 
-/* Every foe carries a leitmotif: their own key, tempo, and a four-note
-   figure that surfaces every other bar. Same room, different tenant. */
-interface Foe { semi: number; bpm: number; fig: number[]; soft: number; }
+/* =====================================================================
+   THE SCORE
+   A tracker, not a generator. `song.ts` holds written patterns and an
+   order to play them in; this file steps through them, and mixes them
+   against whatever is happening on the table.
+
+   That last part is the point. The channels are not fixed: the bass
+   pulls back when the machine has the pen, the arpeggio comes up as the
+   line grows, the bell only appears when the match is close, and every
+   filter opens with the tension. Nothing is faded in by a timer — the
+   arrangement is a read-out of the game.
+   ===================================================================== */
+
+/** Every foe: their key, their tempo, and how bright their room is. */
+interface Foe { semi: number; bpm: number; air: number; }
 
 const FOES: Foe[] = [
-  { semi:  0, bpm: 61, fig: [0, 2, 4, 2], soft: 1.00 },  // Publican  — plain A minor
-  { semi:  2, bpm: 64, fig: [4, 3, 1, 0], soft: 0.95 },  // Wheelwright
-  { semi: -3, bpm: 58, fig: [0, 1, 3, 1], soft: 1.05 },  // Reeve
-  { semi:  5, bpm: 66, fig: [2, 4, 5, 4], soft: 0.92 },  // Alchemist
-  { semi: -1, bpm: 56, fig: [5, 3, 2, 0], soft: 1.08 },  // Abbot
-  { semi:  3, bpm: 69, fig: [0, 4, 3, 6], soft: 0.88 },  // Executioner
-  { semi: -5, bpm: 52, fig: [6, 4, 2, 0], soft: 1.15 }   // Devil     — low and slow
+  { semi:  0, bpm: 84, air: 1.00 },  // Publican    — plain A minor
+  { semi:  2, bpm: 88, air: 0.96 },  // Wheelwright
+  { semi: -3, bpm: 80, air: 1.04 },  // Reeve
+  { semi:  5, bpm: 92, air: 0.92 },  // Alchemist
+  { semi: -1, bpm: 78, air: 1.06 },  // Abbot
+  { semi:  3, bpm: 96, air: 0.86 },  // Executioner
+  { semi: -5, bpm: 72, air: 1.14 }   // Devil       — low and slow
 ];
 
 export function foe(): Foe {
@@ -23,20 +37,60 @@ export function shift(f: number): number {
   return f * Math.pow(2, foe().semi / 12);
 }
 
+/* ---------------- what the table is doing ---------------- */
+
+export interface Table {
+  /** How close the match is to the edge, 0 … 1. */
+  tension: number;
+  /** The machine has the pen. */
+  theirs: boolean;
+  /** Points riding on the dice. */
+  line: number;
+}
+
+let readTable: () => Table = () => ({ tension: 0, theirs: false, line: 0 });
+
+/** Injected by the game, so audio never imports game state. */
+export function setTableSource(fn: () => Table): void {
+  readTable = fn;
+}
+
+export function tension(): number {
+  return readTable().tension;
+}
+
+/** Channel levels, recomputed every bar from the state of play. */
+const mix: Record<Inst, number> = { pad: 1, bass: 1, lead: 1, arp: 0, bell: 0 };
+let open = 0.3;
+
+function remix(): void {
+  const t = readTable();
+  const heat = Math.min(1, Math.max(0, t.tension));
+  const pot = Math.min(1, t.line / 22);
+
+  mix.pad = 1;
+  // the pen changing hands is a change of weight, not of volume
+  mix.bass = t.theirs ? 0.5 : 1;
+  mix.lead = t.theirs ? 0.3 : 0.55 + 0.45 * pot;
+  mix.arp = pot * (t.theirs ? 0.45 : 1);
+  mix.bell = heat > 0.5 ? (heat - 0.5) * 2 : 0;
+  open = (0.22 + 0.78 * heat) * foe().air;
+}
+
+/* ---------------- the compatibility seam ----------------
+   Effects are tuned to the chord under them, so the tray and the ledger
+   ring in the same key as whatever is playing. These four are what
+   `sfx.ts` reaches for. */
+
 export function chordNow(): Chord {
   return A.chord || PROG[0];
 }
 
-/* How close the match is to the edge. Injected by the game rather than
-   imported from it, so audio never depends on game state. */
-let tensionSource: () => number = () => 0;
-
-export function setTensionSource(fn: () => number): void {
-  tensionSource = fn;
-}
-
-export function tension(): number {
-  return tensionSource();
+export function chordTone(step: number, oct?: number): number {
+  const ch = chordNow().n;
+  const i = step % ch.length;
+  const up = Math.floor(step / ch.length);
+  return shift(ch[i]) * Math.pow(2, (oct || 0) + up);
 }
 
 /* Repeating an action should not repeat a note. Each event walks its own
@@ -52,134 +106,73 @@ export function walk(key: string, len: number, resetMs?: number): number {
   return w.i++ % len;
 }
 
-export function chordTone(step: number, oct?: number): number {
-  const ch = chordNow().n;
-  const i = step % ch.length;
-  const up = Math.floor(step / ch.length);
-  return shift(ch[i]) * Math.pow(2, (oct || 0) + up);
+/* ---------------- the player ---------------- */
+
+let orderAt = 0;
+/** Eighths elapsed inside the current pattern. */
+let inPattern = 0;
+
+/** A little push and pull, so the eighths are not a grid. */
+const SWING = 0.055;
+
+function chordFor(chord: number[], deg: number): number {
+  const i = ((deg % chord.length) + chord.length) % chord.length;
+  const up = Math.floor(deg / chord.length);
+  return chord[i] + up * 7;
 }
 
-/* ---------------- generative score ---------------- */
-
-function pad(ch: Chord, t0: number, dur: number): void {
-  const c = A.ctx!;
-  const open = 420 + tension() * 1100;
-  ch.n.forEach((f, i) => {
-    [-4.5, 4.5].forEach((cents) => {
-      const o = c.createOscillator();
-      o.type = i > 1 ? 'sine' : 'triangle';
-      o.frequency.value = shift(f);
-      o.detune.value = cents + (Math.random() * 3 - 1.5);
-      const lp = c.createBiquadFilter(); lp.type = 'lowpass';
-      lp.frequency.setValueAtTime(open * 0.75, t0);
-      lp.frequency.linearRampToValueAtTime(open, t0 + dur * 0.5);
-      lp.frequency.linearRampToValueAtTime(open * 0.8, t0 + dur);
-      const g = c.createGain();
-      const peak = 0.032 / (1 + i * 0.22);
-      g.gain.setValueAtTime(0.0001, t0);
-      g.gain.linearRampToValueAtTime(peak, t0 + dur * 0.42);
-      g.gain.linearRampToValueAtTime(0.0001, t0 + dur);
-      o.connect(lp); lp.connect(g); outMus(g);
-      o.start(t0); o.stop(t0 + dur + 0.08);
-    });
-  });
-}
-
-function bassNote(f: number, t0: number, dur: number): void {
-  const c = A.ctx!;
-  const o = c.createOscillator(); o.type = 'sine'; o.frequency.value = f;
-  const o2 = c.createOscillator(); o2.type = 'triangle'; o2.frequency.value = f * 2; o2.detune.value = 5;
-  const g = c.createGain();
-  const g2 = c.createGain();
-  g.gain.setValueAtTime(0.0001, t0);
-  g.gain.exponentialRampToValueAtTime(0.09, t0 + 0.06);
-  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur * 0.6);
-  g2.gain.setValueAtTime(0.0001, t0);
-  g2.gain.exponentialRampToValueAtTime(0.02, t0 + 0.05);
-  g2.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.9);
-  o.connect(g); o2.connect(g2); outMus(g); outMus(g2);
-  o.start(t0); o.stop(t0 + dur * 0.65); o2.start(t0); o2.stop(t0 + 1.0);
-}
-
-function voice(f: number, t0: number, vol: number, soft: boolean): void {
-  const c = A.ctx!;
-  const o = c.createOscillator(); o.type = soft ? 'sine' : 'triangle'; o.frequency.value = f;
-  const lp = c.createBiquadFilter(); lp.type = 'lowpass';
-  lp.frequency.setValueAtTime(3000 + tension() * 1500, t0);
-  lp.frequency.exponentialRampToValueAtTime(700, t0 + 0.7);
-  const g = c.createGain();
-  g.gain.setValueAtTime(0.0001, t0);
-  g.gain.exponentialRampToValueAtTime(vol, t0 + 0.01);
-  g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.95);
-  o.connect(lp); lp.connect(g); outMus(g); g.connect(A.delay!);
-  o.start(t0); o.stop(t0 + 1.0);
-}
-
-let motif: number[] | null = null;
-
-function newMotif(): number[] {
-  const m: number[] = [];
-  let last = 3;
-  for (let i = 0; i < 8; i++) {
-    if (Math.random() < 0.42) { m.push(-1); continue; }
-    last = Math.max(0, Math.min(POOL.length - 1, last + (Math.floor(Math.random() * 5) - 2)));
-    m.push(last);
-  }
-  return m;
-}
-
-const BAR = 16;
-
-function stepAt(i: number, t: number): void {
-  const ci = Math.floor(i / BAR) % PROG.length;
-  const ch = PROG[ci];
+function stepAt(t: number): void {
+  const pattern = PATTERNS[ORDER[orderAt % ORDER.length]];
+  const bars = barsOf(pattern);
+  const bar = Math.floor(inPattern / 8) % bars;
+  const chord = pattern.chords[bar];
   const eighth = 60 / A.bpm / 2;
-  t += (i % 2) ? eighth * 0.055 : 0;
+  const at = t + (inPattern % 2 ? eighth * SWING : 0);
 
-  if (i % BAR === 0) {
-    A.chord = ch;
-    pad(ch, t, BAR * eighth);
-    bassNote(shift(ch.b), t, BAR * eighth);
-    if (ci % 4 === 0 && (!motif || Math.random() < 0.55)) motif = newMotif();
+  if (inPattern === 0) remix();
+
+  if (inPattern % 8 === 0) {
+    // publish the chord in hertz, for the effects to tune themselves to
+    A.chord = {
+      n: [0, 1, 2, 3].map((k) => shift(hz(chordFor(chord, k) + 7))),
+      b: shift(hz(chord[0]))
+    };
   }
 
-  // the foe's own figure, every other bar, sitting under everything else
-  const F = foe();
-  if (i % (BAR * 2) === 4) {
-    F.fig.forEach((d, k) => {
-      voice(shift(POOL[d]) * F.soft, t + k * eighth * 1.5, 0.030, true);
+  for (const tr of pattern.tracks) {
+    const raw = tr.n[inPattern % tr.n.length];
+    if (raw <= R) continue;
+    const level = mix[tr.inst];
+    if (level <= 0.02) continue;
+    const deg = (tr.chordal ? chordFor(chord, raw) : raw) + (tr.up || 0);
+    playNote(tr.inst, {
+      f: shift(hz(deg)),
+      t: at,
+      dur: tr.len * eighth,
+      vel: tr.vel * level,
+      open
     });
   }
 
-  const section = Math.floor(i / (BAR * 2)) % 2;
-  if (section === 0 && i % 2 === 0) {
-    const k = (i / 2) % ch.n.length;
-    const oct = ((i / 2) % 8 < 4) ? 2 : 4;
-    voice(shift(ch.n[k]) * oct / 2, t, 0.019 + tension() * 0.008, true);
-  }
-
-  if (motif) {
-    const d = motif[i % motif.length];
-    if (d >= 0 && Math.random() < 0.55 + tension() * 0.3) {
-      voice(shift(POOL[d]), t, 0.038 + Math.random() * 0.02, false);
-    }
-  }
-
-  if (i % BAR === BAR - 2 && Math.random() < 0.6) {
-    voice(shift(POOL[POOL.length - 1]) * 2, t, 0.016, true);
-  }
+  inPattern++;
+  if (inPattern >= bars * 8) { inPattern = 0; orderAt++; }
 }
 
 function scheduler(): void {
   if (!A.ctx) return;
   const eighth = 60 / A.bpm / 2;
-  while (A.next < A.ctx.currentTime + 0.28) { stepAt(A.step, A.next); A.step++; A.next += eighth; }
+  while (A.next < A.ctx.currentTime + 0.28) {
+    stepAt(A.next);
+    A.next += eighth;
+  }
 }
 
 export function retune(): void {
   A.bpm = foe().bpm;
   if (A.delay) A.delay.delayTime.setTargetAtTime(60 / A.bpm * 0.75, A.ctx!.currentTime, 0.4);
-  motif = null;
+  orderAt = 0;
+  inPattern = 0;
+  remix();
 }
 
 export function startMusic(): void {
@@ -188,6 +181,7 @@ export function startMusic(): void {
   A.bpm = foe().bpm;
   A.playing = true;
   A.next = c.currentTime + 0.15;
+  remix();
   A.mus!.gain.setTargetAtTime(A.musLevel, c.currentTime, 1.6);
   A.timer = setInterval(scheduler, 40);
 }

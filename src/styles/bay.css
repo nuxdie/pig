@@ -1,23 +1,15 @@
-/* ---------- centre bay ---------- */
+/* ---------- the table ----------
+   Everything a turn needs, in the order a turn needs it: the dice, what is
+   riding on them, and the two buttons. */
 .bay{
-  grid-area:bay;background:var(--paper-hi);border:1px solid var(--rule);
+  position:relative;background:var(--paper-hi);border:1px solid var(--rule);
   padding:clamp(14px,2.4vw,22px);display:flex;flex-direction:column;
-  align-items:center;gap:13px;box-shadow:0 2px 0 rgba(0,0,0,.05);
+  align-items:center;gap:clamp(10px,1.8vw,16px);
+  box-shadow:0 2px 0 rgba(0,0,0,.05);
+  border-top:4px solid var(--ink);transition:border-color .35s;
 }
-.whose{
-  width:calc(100% + 2 * clamp(14px,2.4vw,22px));
-  margin:calc(-1 * clamp(14px,2.4vw,22px)) calc(-1 * clamp(14px,2.4vw,22px)) 2px;
-  padding:11px 10px;text-align:center;font-family:var(--mono);font-size:12px;
-  font-weight:700;letter-spacing:.24em;text-transform:uppercase;
-  background:var(--ink);color:var(--paper-hi);transition:background .35s;
-}
-.whose.is-them{background:var(--stamp)}
-.whose.is-win{background:var(--good)}
-.whose.is-loss{background:var(--red)}
-.whose.is-tin{background:var(--tin)}
-.whose.is-silver{background:var(--silver)}
-.whose.is-gold{background:var(--gold)}
-
+/* a hairline of whose pen it is, without a whole bar to say so */
+.bay.is-theirs{border-top-color:var(--stamp)}
 .verdict{display:none;width:100%;flex-direction:column;align-items:center;gap:12px;padding:4px 0 2px;animation:inked .45s ease-out}
 .verdict.is-on{display:flex}
 .verdict__line{margin:0;text-align:center;font-size:clamp(19px,3vw,24px);font-weight:600;line-height:1.25}
